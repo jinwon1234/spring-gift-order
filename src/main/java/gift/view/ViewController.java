@@ -1,6 +1,7 @@
 package gift.view;
 
 import gift.global.annotation.OnlyForAdmin;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,8 +10,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class ViewController {
 
+    @Value("${oauth2.key.kakao}")
+    private String kakaoRestApiKey;
+    @Value("${oauth2.redirect.kakao}")
+    private String kakaoRedirectUri;
+
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("kakaoRestApiKey", kakaoRestApiKey);
+        model.addAttribute("kakaoRedirectUri", kakaoRedirectUri);
+
         return "login";
     }
 

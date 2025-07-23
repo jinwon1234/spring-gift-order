@@ -20,7 +20,11 @@
 
 <p id="error" style="color:red;"></p>
 
-<script>
+<button id="kakaoLoginBtn">
+    카카오 로그인
+</button>
+
+<script th:inline="javascript">
     const params = new URLSearchParams(location.search);
     const redirectUrl = params.get("redirect") || "/";
 
@@ -36,8 +40,6 @@
             contentType: "application/json",
             data: JSON.stringify({ email, password }),
             success: function () {
-                // JWT는 서버가 HttpOnly 쿠키로 내려주므로 JS에서는 접근 못함
-                // 단순히 리다이렉트
                 window.location.href = redirectUrl;
             },
             error: function (xhr) {
@@ -45,6 +47,22 @@
                 $("#error").text(msg);
             }
         });
+    });
+
+
+    const kakaoRestApiKey = /*[[${kakaoRestApiKey}]]*/ "API_KEY";
+    const kakaoRedirectUri = /*[[${kakaoRedirectUri}]]*/ "REDIRECT_URI";
+
+
+    $("#kakaoLoginBtn").on("click", function () {
+        const kakaoAuthUrl =
+            `https://kauth.kakao.com/oauth/authorize?` +
+            `scope=talk_message&` +
+            `client_id=${kakaoRestApiKey}&` +
+            `redirect_uri=${encodeURIComponent(kakaoRedirectUri)}&` +
+            `response_type=code&state=${redirectUrl}`;
+
+        window.location.href = kakaoAuthUrl;
     });
 </script>
 

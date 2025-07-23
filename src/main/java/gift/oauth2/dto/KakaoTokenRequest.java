@@ -1,4 +1,8 @@
 package gift.oauth2.dto;
 
-public class KakaoLoginRequest {
+public record KakaoTokenRequest(
+        String code,
+        String key,
+        String redirectUri
+){
 }
