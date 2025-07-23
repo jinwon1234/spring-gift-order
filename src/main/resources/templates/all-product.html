@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>상품 페이지</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function getQueryParam(name, defaultValue) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || defaultValue;
+        }
+
+        $(document).ready(function () {
+            let currentPage = parseInt(getQueryParam('page', 0));
+            const size = parseInt(getQueryParam('size', 10));
+            const sort = getQueryParam('sort', 'id,asc');
+
+            $('#sortKey').val(sort.split(',')[0]);
+            $('#sortDir').val(sort.split(',')[1]);
+
+            $('#sortKey, #sortDir').on('change', function () {
+                const newSortKey = $('#sortKey').val();
+                const newSortDir = $('#sortDir').val();
+
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('page', 0);
+                newUrl.searchParams.set('size', size);
+                newUrl.searchParams.set('sort', `${newSortKey},${newSortDir}`);
+
+                window.location.href = newUrl.toString();
+            });
+
+            function fetchProducts(page = 0) {
+                $.ajax({
+                    url: `/api/products?page=${page}&size=${size}&sort=${sort}`,
+                    method: 'GET',
+                    success: function (data) {
+                        const products = data.content;
+                        const totalPages = data.page.totalPages;
+                        currentPage = data.page.number;
+
+                        let html = `
+                            <table class="table table-striped table-hover mt-4">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>이름</th>
+                                        <th>가격</th>
+                                        <th>이미지</th>
+                                        <th>위시리스트 추가</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        for (const product of products) {
+                            html += `
+                                <tr>
+                                    <td>${product.name}</td>
+                                    <td>${product.price.toLocaleString()}원</td>
+                                    <td><img src="${product.imageURL}" alt="img" width="60" height="60" class="rounded shadow-sm"></td>
+                                    <td><button class="btn btn-warning btn-sm addBtn" data-id="${product.id}">추가</button></td>
+                                </tr>
+                            `;
+                        }
+                        html += `</tbody></table>`;
+                        $('#result').html(html);
+
+                        renderPagination(totalPages);
+                    },
+                    error: function () {
+                        $('#result').html('<div class="alert alert-danger">상품 목록을 불러오는 데 실패했습니다.</div>');
+                    }
+                });
+            }
+
+            function renderPagination(totalPages) {
+                let paginationHtml = `<nav><ul class="pagination">`;
+
+                for (let i = 0; i < totalPages; i++) {
+                    const active = i === currentPage ? 'active' : '';
+                    paginationHtml += `
+                        <li class="page-item ${active}">
+                            <a class="page-link pageBtn" href="?page=${i}&size=${size}&sort=${sort}">${i + 1}</a>
+                        </li>`;
+                }
+
+                paginationHtml += `</ul></nav>`;
+                $('#pagination').html(paginationHtml);
+            }
+
+            $('#pagination').on('click', '.pageBtn', function (e) {
+                // 기본 앵커 이동 → 새로고침 발생 (URL 유지)
+            });
+
+            $('#result').on('click', '.addBtn', function () {
+                const productId = $(this).data('id');
+                window.location.href = `/products/${productId}/select-option`;
+            });
+
+            fetchProducts(currentPage);
+        });
+    </script>
+</head>
+
+<body class="bg-light">
+<div th:replace="~{fragments/header.html}"></div>
+<div class="container mt-5">
+    <h1 class="text-center text-primary fw-bold mb-4">상품 페이지</h1>
+    <hr>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="sortKey" class="form-label">정렬 기준</label>
+            <select id="sortKey" class="form-select">
+                <option value="id">ID</option>
+                <option value="name">이름</option>
+                <option value="price">가격</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="sortDir" class="form-label">정렬 방향</label>
+            <select id="sortDir" class="form-select">
+                <option value="asc">오름차순</option>
+                <option value="desc">내림차순</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="result"></div>
+    <div class="d-flex justify-content-center mt-3" id="pagination"></div>
+</div>
+</body>
+</html>

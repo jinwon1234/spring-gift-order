@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function getQueryParam(name, defaultValue) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || defaultValue;
+        }
+
+        $(document).ready(function () {
+            let currentPage = parseInt(getQueryParam('page', 0));
+            const size = parseInt(getQueryParam('size', 10));
+            const sort = getQueryParam('sort', 'id,asc');
+
+            $('#sortKey').val(sort.split(',')[0]);
+            $('#sortDir').val(sort.split(',')[1]);
+            $('#sortKey, #sortDir').on('change', function () {
+                const newSortKey = $('#sortKey').val();
+                const newSortDir = $('#sortDir').val();
+
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('page', 0); // 정렬 바꾸면 첫 페이지로
+                newUrl.searchParams.set('size', size);
+                newUrl.searchParams.set('sort', `${newSortKey},${newSortDir}`);
+
+                // 페이지 이동 (리로드)
+                window.location.href = newUrl.toString();
+            });
+
+            function fetchMembers(page = 0) {
+                $.ajax({
+                    url: `/api/members?page=${page}&size=${size}&sort=${sort}`,
+                    method: 'GET',
+                    success: function (data) {
+                        const members = data.content;
+                        const totalPages = data.page.totalPages;
+                        currentPage = data.page.number;
+
+                        let html = `
+                <table class="table table-hover mt-4">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>이메일</th>
+                            <th>역할</th>
+                            <th>수정</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                        for (const member of members) {
+                            html += `
+                    <tr>
+                        <td>${member.email}</td>
+                        <td>${member.role}</td>
+                        <td><button class="btn btn-warning btn-sm editBtn" data-id="${member.id}">수정</button></td>
+                        <td><button class="btn btn-danger btn-sm deleteBtn" data-id="${member.id}">삭제</button></td>
+                    </tr>`;
+                        }
+                        html += `</tbody></table>`;
+                        $('#result').html(html);
+
+                        renderPagination(totalPages);
+                    },
+                    error: function () {
+                        $('#result').html('<div class="alert alert-danger">회원 목록 조회 실패</div>');
+                    }
+                });
+            }
+
+            function renderPagination(totalPages) {
+                let paginationHtml = `<nav><ul class="pagination">`;
+
+                for (let i = 0; i < totalPages; i++) {
+                    const active = i === currentPage ? 'active' : '';
+                    paginationHtml += `
+            <li class="page-item ${active}">
+                <a class="page-link pageBtn" href="?page=${i}&size=${size}&sort=${sort}">${i + 1}</a>
+            </li>`;
+                }
+
+                paginationHtml += `</ul></nav>`;
+                $('#pagination').html(paginationHtml);
+            }
+
+            $('#pagination').on('click', '.pageBtn', function (e) {
+                // 기본 페이지 이동 허용해서 URL 변경 → 새로고침해도 유지됨
+            });
+
+            // 회원 삭제 및 수정 버튼 이벤트
+            $('#result').on('click', '.deleteBtn', function () {
+                const memberId = $(this).data('id');
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    $.ajax({
+                        url: `/api/members/${memberId}`,
+                        method: 'DELETE',
+                        success: () => fetchMembers(currentPage),
+                        error: () => alert('회원 삭제 실패')
+                    });
+                }
+            });
+
+            $('#result').on('click', '.editBtn', function () {
+                const memberId = $(this).data('id');
+                window.location.href = `/admin/members/${memberId}`;
+            });
+
+            $('#addMember').on('click', function () {
+                window.location.href = '/admin/members/add';
+            });
+            fetchMembers(currentPage);
+        });
+    </script>
+</head>
+<body class="bg-light">
+<!-- 공통 헤더 포함 -->
+<div th:replace="~{fragments/header.html}"></div>
+<div class="container mt-5">
+    <h1 class="text-center text-primary fw-bold mb-4">회원 관리</h1>
+    <div class="text-end mb-3">
+        <button id="addMember" class="btn btn-success">회원 추가</button>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="sortKey" class="form-label">정렬 기준</label>
+            <select id="sortKey" class="form-select">
+                <option value="id">ID</option>
+                <option value="email">Email</option>
+                <option value="role">Role</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="sortDir" class="form-label">정렬 방향</label>
+            <select id="sortDir" class="form-select">
+                <option value="asc">오름차순</option>
+                <option value="desc">내림차순</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="result"></div>
+    <div class="d-flex justify-content-center mt-3" id="pagination"></div>
+</div>
+</body>
+</html>

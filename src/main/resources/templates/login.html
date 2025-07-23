@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>로그인</h2>
+
+<form id="loginForm">
+    <label for="email">이메일</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="password">비밀번호</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <button type="submit">로그인</button>
+</form>
+
+<p id="error" style="color:red;"></p>
+
+<script>
+    const params = new URLSearchParams(location.search);
+    const redirectUrl = params.get("redirect") || "/";
+
+    $("#loginForm").on("submit", function (e) {
+        e.preventDefault();
+
+        const email = $("#email").val();
+        const password = $("#password").val();
+
+        $.ajax({
+            url: "/api/members/login",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ email, password }),
+            success: function () {
+                // JWT는 서버가 HttpOnly 쿠키로 내려주므로 JS에서는 접근 못함
+                // 단순히 리다이렉트
+                window.location.href = redirectUrl;
+            },
+            error: function (xhr) {
+                const msg = xhr.responseJSON?.message || "로그인 실패";
+                $("#error").text(msg);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
