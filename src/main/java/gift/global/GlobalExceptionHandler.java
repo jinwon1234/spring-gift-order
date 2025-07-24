@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 import java.util.Map;
@@ -64,5 +65,11 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new KakaoExceptionResponse(ex.getMessage(), ex.getCode()));
+    }
+
+    @ExceptionHandler(ResourceAccessException.class)
+    public ResponseEntity<Map<String,String>> handleResourceAccessException(ResourceAccessException ex) {
+
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(Map.of("message", "외부 API 호출 실패" + "[" + ex.getMessage() + "]"));
     }
 }

@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -30,6 +31,11 @@ public class KakaoService {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.objectMapper = objectMapper;
+
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(5_000);
+        requestFactory.setReadTimeout(5_000);
+
         this.restClient = builder
                 .defaultStatusHandler(httpStatusCode -> {
                     if (httpStatusCode.getStatusCode().is4xxClientError() || httpStatusCode.getStatusCode().is5xxServerError()) {
@@ -38,6 +44,7 @@ public class KakaoService {
                     }
                     return true;
                 })
+                .requestFactory(requestFactory)
                 .build();
     }
 
