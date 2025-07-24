@@ -59,7 +59,8 @@ class KakaoServiceTest {
 
         // when
 
-        KakaoTokenResponse token = kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri"));
+        KakaoTokenResponse token = kakaoService.getToken(
+                new KakaoTokenRequest("clientId", "code", "redirectUri")).get();
 
         // then
         assertThat(token.token_type()).isEqualTo("bearer");
@@ -130,7 +131,7 @@ class KakaoServiceTest {
 
         // when
         KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(new KakaoTokenResponse("temp", "temp", "temp", 30L,
-                "temp", 30L, "temp"));
+                "temp", 30L, "temp")).get();
 
         // then
         assertThat(userInfo.id()).isEqualTo(123456789L);

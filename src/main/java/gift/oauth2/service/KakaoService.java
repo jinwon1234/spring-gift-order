@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.util.Optional;
+
 import static gift.oauth2.dto.KakaoUserInfoResponse.*;
 
 @Service
@@ -40,13 +42,15 @@ public class KakaoService {
     }
 
     public Cookie socialLogin(KakaoTokenRequest kakaoTokenRequest) {
-        KakaoTokenResponse token = getToken(kakaoTokenRequest);
-        KakaoUserInfoResponse userInfo = getUserInfo(token);
+        KakaoTokenResponse token = getToken(kakaoTokenRequest)
+                .orElseThrow(()-> new IllegalStateException("API 응답이 비어있습니다. [카카오]."));
+        KakaoUserInfoResponse userInfo = getUserInfo(token)
+                .orElseThrow(()-> new IllegalStateException("API 응답이 비어있습니다. [카카오]"));
         String accessToken = createAccessToken(userInfo);
         return createCookie("Authorization", accessToken);
     }
 
-    public KakaoTokenResponse getToken(KakaoTokenRequest request) {
+    public Optional<KakaoTokenResponse> getToken(KakaoTokenRequest request) {
         LinkedMultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("client_id", request.key());
@@ -60,13 +64,11 @@ public class KakaoService {
                 .retrieve()
                 .toEntity(KakaoTokenResponse.class);
 
-        if (kakaoTokenResponse.getBody() == null)
-            throw new IllegalStateException("토큰 응답이 비어있습니다. [카카오 oauth2]");
-        return kakaoTokenResponse.getBody();
+        return Optional.ofNullable(kakaoTokenResponse.getBody());
 
     }
 
-    public KakaoUserInfoResponse getUserInfo(KakaoTokenResponse response) {
+    public Optional<KakaoUserInfoResponse> getUserInfo(KakaoTokenResponse response) {
 
         ResponseEntity<KakaoUserInfoResponse> userInfoResponse = restClient.get()
                 .uri("https://kapi.kakao.com/v2/user/me")
@@ -75,7 +77,7 @@ public class KakaoService {
                 .retrieve()
                 .toEntity(KakaoUserInfoResponse.class);
 
-        return userInfoResponse.getBody();
+        return Optional.ofNullable(userInfoResponse.getBody());
     }
 
     private String createAccessToken(KakaoUserInfoResponse userInfoResponse) {
