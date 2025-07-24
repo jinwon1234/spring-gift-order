@@ -3,6 +3,7 @@ package gift.global;
 import gift.global.error.ErrorResponse;
 import gift.global.error.ObjectErrorResponse;
 import gift.global.exception.*;
+import gift.oauth2.dto.KakaoExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -56,5 +57,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestEntityException.class)
     public ResponseEntity<Map<String, String>> handleBadRequestEntityException(BadRequestEntityException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(KakaoApiException.class)
+    public ResponseEntity<KakaoExceptionResponse> handleKakaoApiException(KakaoApiException ex) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new KakaoExceptionResponse(ex.getMessage(), ex.getCode()));
     }
 }

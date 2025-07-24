@@ -1,12 +1,11 @@
 package gift.oauth2.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.domain.Member;
+import gift.global.exception.KakaoApiException;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
-import gift.oauth2.dto.KakaoTokenRequest;
-import gift.oauth2.dto.KakaoTokenResponse;
-import gift.oauth2.dto.KakaoUserInfoResponse;
-import gift.oauth2.dto.SocialLoginRequest;
+import gift.oauth2.dto.*;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,16 +17,26 @@ import org.springframework.web.client.RestClient;
 import static gift.oauth2.dto.KakaoUserInfoResponse.*;
 
 @Service
-public class Oauth2Service {
+public class KakaoService {
 
     private final RestClient restClient;
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
-    public Oauth2Service(MemberService memberService, JWTUtil jwtUtil) {
+    public KakaoService(MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper) {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
-        this.restClient = RestClient.builder().build();
+        this.objectMapper = objectMapper;
+        this.restClient = RestClient.builder()
+                .defaultStatusHandler(httpStatusCode -> {
+                    if (httpStatusCode.getStatusCode().is4xxClientError() || httpStatusCode.getStatusCode().is5xxServerError()) {
+                        KakaoExceptionResponse response = objectMapper.readValue(httpStatusCode.getBody(), KakaoExceptionResponse.class);
+                        throw new KakaoApiException(response.msg(), response.code());
+                    }
+                    return true;
+                })
+                .build();
     }
 
     public Cookie socialLogin(KakaoTokenRequest kakaoTokenRequest) {
