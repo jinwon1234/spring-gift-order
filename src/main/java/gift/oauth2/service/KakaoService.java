@@ -24,11 +24,11 @@ public class KakaoService {
     private final JWTUtil jwtUtil;
     private final ObjectMapper objectMapper;
 
-    public KakaoService(MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper) {
+    public KakaoService(RestClient.Builder builder, MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper) {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.objectMapper = objectMapper;
-        this.restClient = RestClient.builder()
+        this.restClient = builder
                 .defaultStatusHandler(httpStatusCode -> {
                     if (httpStatusCode.getStatusCode().is4xxClientError() || httpStatusCode.getStatusCode().is5xxServerError()) {
                         KakaoExceptionResponse response = objectMapper.readValue(httpStatusCode.getBody(), KakaoExceptionResponse.class);
@@ -41,11 +41,12 @@ public class KakaoService {
 
     public Cookie socialLogin(KakaoTokenRequest kakaoTokenRequest) {
         KakaoTokenResponse token = getToken(kakaoTokenRequest);
-        String accessToken = createAccessToken(token);
+        KakaoUserInfoResponse userInfo = getUserInfo(token);
+        String accessToken = createAccessToken(userInfo);
         return createCookie("Authorization", accessToken);
     }
 
-    private KakaoTokenResponse getToken(KakaoTokenRequest request) {
+    public KakaoTokenResponse getToken(KakaoTokenRequest request) {
         LinkedMultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("client_id", request.key());
@@ -65,7 +66,7 @@ public class KakaoService {
 
     }
 
-    private String createAccessToken(KakaoTokenResponse response) {
+    public KakaoUserInfoResponse getUserInfo(KakaoTokenResponse response) {
 
         ResponseEntity<KakaoUserInfoResponse> userInfoResponse = restClient.get()
                 .uri("https://kapi.kakao.com/v2/user/me")
@@ -74,7 +75,11 @@ public class KakaoService {
                 .retrieve()
                 .toEntity(KakaoUserInfoResponse.class);
 
-        KakaoAccount kakaoAccount = userInfoResponse.getBody().kakao_account();
+        return userInfoResponse.getBody();
+    }
+
+    private String createAccessToken(KakaoUserInfoResponse userInfoResponse) {
+        KakaoAccount kakaoAccount = userInfoResponse.kakao_account();
 
         Member member = memberService.socialLogin(new SocialLoginRequest(kakaoAccount.email()));
 

@@ -1,0 +1,144 @@
+package gift.oauth2.service;
+
+import gift.global.exception.KakaoApiException;
+import gift.jwt.JWTUtil;
+import gift.member.service.MemberService;
+import gift.oauth2.dto.KakaoExceptionResponse;
+import gift.oauth2.dto.KakaoTokenRequest;
+import gift.oauth2.dto.KakaoTokenResponse;
+import gift.oauth2.dto.KakaoUserInfoResponse;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.client.MockRestServiceServer;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+
+@RestClientTest(KakaoService.class)
+class KakaoServiceTest {
+
+    @Autowired
+    private KakaoService kakaoService;
+
+    @Autowired
+    private MockRestServiceServer mockServer;
+
+    @MockitoBean
+    private MemberService memberService;
+
+    @MockitoBean
+    private JWTUtil jwtUtil;
+
+    @Test
+    @DisplayName("토큰 요청 성공")
+    void getTokenSuccess() {
+
+        // given
+        String expectedResult = """
+                                {
+                                "token_type": "bearer",
+                                "access_token": "accessToken",
+                                "id_token": "idToken",
+                                "expires_in": 43199,
+                                "refresh_token": "refreshToken",
+                                "refresh_token_expires_in": 518400,
+                                "scope": "account_email profile"
+                                }
+                                """;
+        mockServer
+                .expect(requestTo("https://kauth.kakao.com/oauth/token"))
+                .andRespond(withSuccess(expectedResult, MediaType.APPLICATION_JSON));
+
+        // when
+
+        KakaoTokenResponse token = kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri"));
+
+        // then
+        assertThat(token.token_type()).isEqualTo("bearer");
+        assertThat(token.access_token()).isEqualTo("accessToken");
+        assertThat(token.id_token()).isEqualTo("idToken");
+        assertThat(token.expires_in()).isEqualTo(43199);
+        assertThat(token.refresh_token_expires_in()).isEqualTo(518400);
+        assertThat(token.refresh_token()).isEqualTo("refreshToken");
+        assertThat(token.scope()).isEqualTo("account_email profile");
+    }
+
+    @Test
+    @DisplayName("토큰 요청 실패")
+    void getTokenFail() {
+
+        // given
+        String errorResponse = """
+        {
+            "msg": "[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.",
+            "code": -3
+        }
+    """;
+
+        mockServer.expect(requestTo("https://kauth.kakao.com/oauth/token"))
+                .andRespond(
+                        withStatus(HttpStatus.FORBIDDEN)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(errorResponse)
+                );
+
+        // when & then
+        assertThatThrownBy(()->kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri")))
+                .isInstanceOf(KakaoApiException.class)
+                .hasMessageContaining("[talk_message]")
+                .extracting("code").isEqualTo(-3);
+    }
+
+    @Test
+    @DisplayName("유저 정보 반환 성공")
+    void getUserInfo() {
+        // given
+        String expectedResult = """
+                {
+                    "id":123456789,
+                    "connected_at": "2022-04-11T01:45:28Z",
+                    "kakao_account": {
+                        "profile_nickname_needs_agreement": false,
+                        "profile_image_needs_agreement": false,
+                        "profile": {
+                            "nickname": "홍길동",
+                            "thumbnail_image_url": "http://yyy.kakao.com/.../img_110x110.jpg",
+                            "profile_image_url": "http://yyy.kakao.com/dn/.../img_640x640.jpg",
+                            "is_default_image":false,
+                            "is_default_nickname": false
+                        },
+                        "name_needs_agreement":false,
+                        "name":"홍길동",
+                        "email_needs_agreement":false,
+                        "is_email_valid": true,
+                        "is_email_verified": true,
+                        "email": "sample@sample.com"
+                    }
+                }
+                """;
+
+        mockServer.expect(requestTo("https://kapi.kakao.com/v2/user/me"))
+                .andRespond(withSuccess(expectedResult, MediaType.APPLICATION_JSON));
+
+        // when
+        KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(new KakaoTokenResponse("temp", "temp", "temp", 30L,
+                "temp", 30L, "temp"));
+
+        // then
+        assertThat(userInfo.id()).isEqualTo(123456789L);
+        assertThat(userInfo.kakao_account().email()).isEqualTo("sample@sample.com");
+        assertThat(userInfo.kakao_account().email_needs_agreement()).isEqualTo(false);
+        assertThat(userInfo.kakao_account().is_email_valid()).isEqualTo(true);
+        assertThat(userInfo.kakao_account().is_email_verified()).isEqualTo(true);
+
+    }
+
+}
