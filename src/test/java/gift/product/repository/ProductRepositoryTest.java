@@ -99,7 +99,7 @@ class ProductRepositoryTest {
         }
 
         // when
-        Page<Product> result = productRepository.findByMemberIdWithOptionsAndPage(member.getId(), PageRequest.of(0, 5));
+        Page<Product> result = productRepository.findByMemberIdWithPage(member.getId(), PageRequest.of(0, 5));
 
         // then
         assertThat(result.getSize()).isEqualTo(5);

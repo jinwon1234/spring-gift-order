@@ -52,7 +52,7 @@ public class ProductServiceV1 implements ProductService{
 
     @Override
     public Page<ProductResponse> findAllProductsWithPage(Pageable pageable) {
-        Page<Product> products = productRepository.findAllWithOptionsAndPage(pageable);
+        Page<Product> products = productRepository.findAllWithPage(pageable);
 
         return products.map(
                 p-> new ProductResponse(p, p.getOptions()
@@ -111,7 +111,7 @@ public class ProductServiceV1 implements ProductService{
     public Page<ProductResponse> findByEmailWithPage(AuthMember authMember, Pageable pageable) {
         Member findMember = memberService.findByEmail(authMember.getEmail());
 
-        return productRepository.findByMemberIdWithOptionsAndPage(findMember.getId(), pageable)
+        return productRepository.findByMemberIdWithPage(findMember.getId(), pageable)
                 .map(p -> new ProductResponse(p, p.getOptions()
                         .stream().map(o -> new OptionResponse(o.getId(), o.getName(), o.getQuantity()))
                         .toList())
