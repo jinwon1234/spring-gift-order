@@ -20,10 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p from Product p where p.member.id = :memberId")
     Page<Product> findByMemberIdWithPage(Long memberId, Pageable pageable);
 
-    @Query(
-            value = "select p from Product p",
-            countQuery = "select count(p) from Product p"
-    )
+    @Query("select p from Product p")
     Page<Product> findAllWithPage(Pageable pageable);
 
     @Query("select p from Product p join fetch p.options")

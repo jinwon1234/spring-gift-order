@@ -19,7 +19,6 @@ public class ViewController {
     public String login(Model model) {
         model.addAttribute("kakaoRestApiKey", kakaoRestApiKey);
         model.addAttribute("kakaoRedirectUri", kakaoRedirectUri);
-
         return "login";
     }
 
