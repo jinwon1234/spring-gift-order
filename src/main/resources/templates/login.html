@@ -57,7 +57,6 @@
     $("#kakaoLoginBtn").on("click", function () {
         const kakaoAuthUrl =
             `https://kauth.kakao.com/oauth/authorize?` +
-            `scope=talk_message&` +
             `client_id=${kakaoRestApiKey}&` +
             `redirect_uri=${encodeURIComponent(kakaoRedirectUri)}&` +
             `response_type=code&state=${redirectUrl}`;
