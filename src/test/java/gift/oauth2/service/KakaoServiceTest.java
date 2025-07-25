@@ -6,16 +6,22 @@ import gift.member.service.MemberService;
 import gift.oauth2.dto.KakaoTokenRequest;
 import gift.oauth2.dto.KakaoTokenResponse;
 import gift.oauth2.dto.KakaoUserInfoResponse;
+import gift.oauth2.properties.KakaoProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
@@ -33,6 +39,15 @@ class KakaoServiceTest {
 
     @MockitoBean
     private JWTUtil jwtUtil;
+
+    @MockitoBean
+    private KakaoProperties kakaoProperties;
+
+    @BeforeEach
+    void setUp() {
+        given(kakaoProperties.getkApiUri()).willReturn("https://kapi.kakao.com");
+        given(kakaoProperties.getkAuthUri()).willReturn("https://kauth.kakao.com");
+    }
 
     @Test
     @DisplayName("토큰 요청 성공")

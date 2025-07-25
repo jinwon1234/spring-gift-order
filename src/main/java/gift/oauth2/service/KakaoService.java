@@ -6,6 +6,7 @@ import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
 import gift.oauth2.dto.*;
 import gift.oauth2.errorHandler.KakaoResponseHandler;
+import gift.oauth2.properties.KakaoProperties;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,13 +25,15 @@ public class KakaoService {
     private final RestClient restClient;
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
+    private final KakaoProperties kakaoProperties;
 
-    public KakaoService(RestClient.Builder builder, MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper) {
+    public KakaoService(RestClient.Builder builder, MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper, KakaoProperties kakaoProperties) {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.restClient = builder
                 .defaultStatusHandler(new KakaoResponseHandler())
                 .build();
+        this.kakaoProperties = kakaoProperties;
     }
 
     public Cookie socialLogin(KakaoTokenRequest kakaoTokenRequest) {
@@ -50,7 +53,7 @@ public class KakaoService {
         form.add("code", request.code());
 
         ResponseEntity<KakaoTokenResponse> kakaoTokenResponse = restClient.post()
-                .uri("https://kauth.kakao.com/oauth/token")
+                .uri(kakaoProperties.getkAuthUri() + "/oauth/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
@@ -63,7 +66,7 @@ public class KakaoService {
     public Optional<KakaoUserInfoResponse> getUserInfo(KakaoTokenResponse response) {
 
         ResponseEntity<KakaoUserInfoResponse> userInfoResponse = restClient.get()
-                .uri("https://kapi.kakao.com/v2/user/me")
+                .uri(kakaoProperties.getkApiUri() + "/v2/user/me")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + response.access_token())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED.toString())
                 .retrieve()
