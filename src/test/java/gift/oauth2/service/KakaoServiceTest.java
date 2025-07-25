@@ -11,16 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.SoftAssertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -75,13 +73,17 @@ class KakaoServiceTest {
                 new KakaoTokenRequest("clientId", "code", "redirectUri")).get();
 
         // then
-        assertThat(token.token_type()).isEqualTo("bearer");
-        assertThat(token.access_token()).isEqualTo("accessToken");
-        assertThat(token.id_token()).isEqualTo("idToken");
-        assertThat(token.expires_in()).isEqualTo(43199);
-        assertThat(token.refresh_token_expires_in()).isEqualTo(518400);
-        assertThat(token.refresh_token()).isEqualTo("refreshToken");
-        assertThat(token.scope()).isEqualTo("account_email profile");
+        assertSoftly(
+                softly-> {
+                    softly.assertThat(token.token_type()).isEqualTo("bearer");
+                    softly.assertThat(token.access_token()).isEqualTo("accessToken");
+                    softly.assertThat(token.id_token()).isEqualTo("idToken");
+                    softly.assertThat(token.expires_in()).isEqualTo(43199);
+                    softly.assertThat(token.refresh_token_expires_in()).isEqualTo(518400);
+                    softly.assertThat(token.refresh_token()).isEqualTo("refreshToken");
+                    softly.assertThat(token.scope()).isEqualTo("account_email profile");
+                }
+        );
     }
 
     @Test
@@ -150,11 +152,13 @@ class KakaoServiceTest {
                 "temp", 30L, "temp")).get();
 
         // then
-        assertThat(userInfo.id()).isEqualTo(123456789L);
-        assertThat(userInfo.kakao_account().email()).isEqualTo("sample@sample.com");
-        assertThat(userInfo.kakao_account().email_needs_agreement()).isEqualTo(false);
-        assertThat(userInfo.kakao_account().is_email_valid()).isEqualTo(true);
-        assertThat(userInfo.kakao_account().is_email_verified()).isEqualTo(true);
+        assertSoftly(softly-> {
+            softly.assertThat(userInfo.id()).isEqualTo(123456789L);
+            softly.assertThat(userInfo.kakao_account().email()).isEqualTo("sample@sample.com");
+            softly.assertThat(userInfo.kakao_account().email_needs_agreement()).isEqualTo(false);
+            softly.assertThat(userInfo.kakao_account().is_email_valid()).isEqualTo(true);
+            softly.assertThat(userInfo.kakao_account().is_email_verified()).isEqualTo(true);
+        });
 
     }
 

@@ -6,6 +6,7 @@ import gift.jwt.JWTUtil;
 import gift.member.dto.*;
 import gift.member.repository.MemberRepository;
 import gift.member.service.MemberServiceV1;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MemberControllerTest {
@@ -355,9 +357,11 @@ class MemberControllerTest {
                 .retrieve()
                 .toEntity(Map.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getHeaders().get("Set-Cookie")).hasSize(1);
-        assertThat(response.getBody().get("message")).isEqualTo("로그아웃 완료");
+        assertSoftly(softly-> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            softly.assertThat(response.getHeaders().get("Set-Cookie")).hasSize(1);
+            softly.assertThat(response.getBody().get("message")).isEqualTo("로그아웃 완료");
+        });
     }
 
 

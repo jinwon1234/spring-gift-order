@@ -11,6 +11,7 @@ import gift.member.dto.MemberCreateRequest;
 import gift.member.dto.MemberResponse;
 import gift.member.dto.MemberUpdateRequest;
 import gift.member.repository.MemberRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 
@@ -53,8 +55,10 @@ class MemberServiceV1Test {
         MemberResponse response = memberService.findById(member.getId());
 
         //then
-        assertThat(response.getEmail()).isEqualTo(member.getEmail());
-        assertThat(response.getRole()).isEqualTo(member.getRole());
+        assertSoftly(softly-> {
+            softly.assertThat(response.getEmail()).isEqualTo(member.getEmail());
+            softly.assertThat(response.getRole()).isEqualTo(member.getRole());
+        });
         verify(memberRepository).findById(member.getId());
     }
 
@@ -247,9 +251,11 @@ class MemberServiceV1Test {
         MemberResponse result = memberService.validate(member.getEmail(), member.getPassword());
 
         // then
-        assertThat(result.getEmail()).isEqualTo(member.getEmail());
-        assertThat(result.getId()).isEqualTo(member.getId());
-        assertThat(result.getRole()).isEqualTo(member.getRole());
+        assertSoftly(softly-> {
+            softly.assertThat(result.getEmail()).isEqualTo(member.getEmail());
+            softly.assertThat(result.getId()).isEqualTo(member.getId());
+            softly.assertThat(result.getRole()).isEqualTo(member.getRole());
+        });
         verify(memberRepository).findByEmail(member.getEmail());
         verifyNoMoreInteractions(memberRepository);
     }

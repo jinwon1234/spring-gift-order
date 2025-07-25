@@ -7,6 +7,7 @@ import gift.domain.Role;
 import gift.global.exception.NotFoundEntityException;
 import gift.member.repository.MemberRepository;
 import gift.product.repository.ProductRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +48,11 @@ class OptionRepositoryTest {
         Option option = optionRepository.findByIdWithProduct(save.getId()).get();
 
         // then
-        assertThat(option.getId()).isEqualTo(save.getId());
-        assertThat(option.getProduct().getId()).isEqualTo(save.getProduct().getId());
-        assertThat(option.getProduct().getMember().getId()).isEqualTo(save.getProduct().getMember().getId());
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(option.getId()).isEqualTo(save.getId());
+            softly.assertThat(option.getProduct().getId()).isEqualTo(save.getProduct().getId());
+            softly.assertThat(option.getProduct().getMember().getId()).isEqualTo(save.getProduct().getMember().getId());
+        });
 
     }
 

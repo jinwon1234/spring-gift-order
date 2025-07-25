@@ -2,6 +2,7 @@ package gift.member.repository;
 
 import gift.domain.Member;
 import gift.domain.Role;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.*;
 
 
 @DataJpaTest
@@ -38,8 +40,10 @@ class MemberRepositoryTest {
                 .get();
 
         // then
-        assertThat(findMember.getId()).isEqualTo(save.getId());
-        assertThat(findMember.getEmail()).isEqualTo(save.getEmail());
+        assertSoftly(softly -> {
+            softly.assertThat(findMember.getId()).isEqualTo(save.getId());
+            softly.assertThat(findMember.getEmail()).isEqualTo(save.getEmail());
+        });
     }
 
     @Test
@@ -55,8 +59,10 @@ class MemberRepositoryTest {
                 .get();
 
         // then
-        assertThat(findMember.getId()).isEqualTo(save.getId());
-        assertThat(findMember.getEmail()).isEqualTo(save.getEmail());
+        assertSoftly(softly -> {
+            softly.assertThat(findMember.getId()).isEqualTo(save.getId());
+            softly.assertThat(findMember.getEmail()).isEqualTo(save.getEmail());
+        });
     }
 
     @Test

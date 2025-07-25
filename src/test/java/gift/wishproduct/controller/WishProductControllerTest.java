@@ -14,6 +14,7 @@ import gift.wishproduct.dto.WishProductCreateReq;
 import gift.wishproduct.dto.WishProductResponse;
 import gift.wishproduct.dto.WishProductUpdateReq;
 import gift.wishproduct.repository.WishProductRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WishProductControllerTest {
@@ -100,8 +102,10 @@ class WishProductControllerTest {
                 .toEntity(Void.class);
 
         // then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getHeaders().get("location")).isNotNull();
+        assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            softly.assertThat(response.getHeaders().get("location")).isNotNull();
+        });
     }
 
     @Test
@@ -125,8 +129,10 @@ class WishProductControllerTest {
         System.out.println(content);
 
         // then
-        assertThat(page.getPage().getTotalElements()).isEqualTo(1);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertSoftly(softly -> {
+            softly.assertThat(page.getPage().getTotalElements()).isEqualTo(1);
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        });
     }
 
     @Test
@@ -170,8 +176,11 @@ class WishProductControllerTest {
                 .toEntity(Void.class);
 
         WishProduct updated = wishProductRepository.findById(wishProduct.getId()).get();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(updated.getQuantity()).isEqualTo(body.getQuantity());
+
+        assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            softly.assertThat(updated.getQuantity()).isEqualTo(body.getQuantity());
+        });
 
     }
 

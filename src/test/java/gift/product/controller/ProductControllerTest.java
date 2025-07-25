@@ -18,6 +18,7 @@ import gift.product.dto.ProductCreateRequest;
 import gift.product.dto.ProductResponse;
 import gift.product.dto.ProductUpdateRequest;
 import gift.product.repository.ProductRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProductControllerTest {
@@ -156,11 +158,14 @@ class ProductControllerTest {
                 .retrieve()
                 .toEntity(ProductResponse.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getId()).isEqualTo(product.getId());
-        assertThat(response.getBody().getName()).isEqualTo(product.getName());
-        assertThat(response.getBody().getPrice()).isEqualTo(product.getPrice());
-        assertThat(response.getBody().getImageURL()).isEqualTo(product.getImageUrl());
+
+        assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            softly.assertThat(response.getBody().getId()).isEqualTo(product.getId());
+            softly.assertThat(response.getBody().getName()).isEqualTo(product.getName());
+            softly.assertThat(response.getBody().getPrice()).isEqualTo(product.getPrice());
+            softly.assertThat(response.getBody().getImageURL()).isEqualTo(product.getImageUrl());
+        });
     }
 
     @Test
@@ -245,8 +250,10 @@ class ProductControllerTest {
                 new TypeReference<PageResponse<ProductResponse>>() {}
         );
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(page.getPage().getTotalElements()).isEqualTo(10);
+        assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            softly.assertThat(page.getPage().getTotalElements()).isEqualTo(10);
+        });
     }
 
 
@@ -273,8 +280,10 @@ class ProductControllerTest {
                 .retrieve()
                 .toEntity(List.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().size()).isEqualTo(1);
+        assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            softly.assertThat(response.getBody().size()).isEqualTo(1);
+        });
     }
 
 
