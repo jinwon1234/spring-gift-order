@@ -5,7 +5,7 @@ import gift.domain.Member;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
 import gift.oauth2.dto.*;
-import gift.oauth2.errorHandler.KakaoResponseHandler;
+import gift.oauth2.errorhandler.KakaoResponseHandler;
 import gift.oauth2.properties.KakaoProperties;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpHeaders;

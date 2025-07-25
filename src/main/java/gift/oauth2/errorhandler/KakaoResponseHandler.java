@@ -1,4 +1,4 @@
-package gift.oauth2.errorHandler;
+package gift.oauth2.errorhandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.global.exception.KakaoApiException;
