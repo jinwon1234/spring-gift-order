@@ -3,12 +3,9 @@ package gift.oauth2.service;
 import gift.global.exception.KakaoApiException;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
-import gift.oauth2.dto.KakaoExceptionResponse;
 import gift.oauth2.dto.KakaoTokenRequest;
 import gift.oauth2.dto.KakaoTokenResponse;
 import gift.oauth2.dto.KakaoUserInfoResponse;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,8 +91,12 @@ class KakaoServiceTest {
         // when & then
         assertThatThrownBy(()->kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri")))
                 .isInstanceOf(KakaoApiException.class)
-                .hasMessageContaining("[talk_message]")
-                .extracting("code").isEqualTo(-3);
+                .satisfies((ex)-> {
+                    KakaoApiException exception = (KakaoApiException) ex;
+                    assertThat(exception.getDetails().get("msg"))
+                            .isEqualTo("[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.");
+                    assertThat(exception.getDetails().get("code")).isEqualTo(-3);
+                });
     }
 
     @Test
@@ -141,5 +142,36 @@ class KakaoServiceTest {
         assertThat(userInfo.kakao_account().is_email_verified()).isEqualTo(true);
 
     }
+
+    @Test
+    @DisplayName("유저 정보 반환 실패")
+    void getUserInfoFail() {
+
+        // given
+        String errorResponse = """
+                {
+                    "error" : "KOE001",
+                    "error_description" : "잘못된 형식의 요청인 경우"
+                }
+                """;
+
+        mockServer.expect(requestTo("https://kapi.kakao.com/v2/user/me"))
+                .andRespond(
+                        withStatus(HttpStatus.BAD_REQUEST)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(errorResponse)
+                );
+
+        // when & then
+        assertThatThrownBy(()->kakaoService.getUserInfo(new KakaoTokenResponse("temp", "temp", "temp", 30L,
+                "temp", 30L, "temp")).get())
+                .isInstanceOf(KakaoApiException.class)
+                .satisfies(ex-> {
+                    KakaoApiException exception = (KakaoApiException) ex;
+                    assertThat(exception.getDetails().get("error")).isEqualTo("KOE001");
+                    assertThat(exception.getDetails().get("error_description")).isEqualTo("잘못된 형식의 요청인 경우");
+                });
+    }
+
 
 }

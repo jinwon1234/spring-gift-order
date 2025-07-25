@@ -2,10 +2,10 @@ package gift.oauth2.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.domain.Member;
-import gift.global.exception.KakaoApiException;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
 import gift.oauth2.dto.*;
+import gift.oauth2.errorHandler.KakaoResponseHandler;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,13 +29,7 @@ public class KakaoService {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.restClient = builder
-                .defaultStatusHandler(httpStatusCode -> {
-                    if (httpStatusCode.getStatusCode().is4xxClientError() || httpStatusCode.getStatusCode().is5xxServerError()) {
-                        KakaoExceptionResponse response = objectMapper.readValue(httpStatusCode.getBody(), KakaoExceptionResponse.class);
-                        throw new KakaoApiException(response.msg(), response.code());
-                    }
-                    return true;
-                })
+                .defaultStatusHandler(new KakaoResponseHandler())
                 .build();
     }
 
