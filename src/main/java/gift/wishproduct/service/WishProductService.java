@@ -1,5 +1,6 @@
 package gift.wishproduct.service;
 
+import gift.domain.WishProduct;
 import gift.wishproduct.dto.WishProductCreateReq;
 import gift.wishproduct.dto.WishProductResponse;
 import gift.wishproduct.dto.WishProductUpdateReq;
@@ -19,4 +20,6 @@ public interface WishProductService {
     void deleteById(Long id, String email);
 
     void updateQuantity(Long id, WishProductUpdateReq wishProductUpdateReq, String email);
+
+    WishProduct findByIdWithOption(Long id);
 }

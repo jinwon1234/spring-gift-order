@@ -21,13 +21,18 @@ public class Order extends BaseTimeEntity{
     @JoinColumn(name = "option_id", nullable = false)
     private Option option;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
 
     protected Order() {}
 
-    public Order(int quantity, String message, Option option) {
+    public Order(int quantity, String message, Option option, Member member) {
         this.quantity = quantity;
         this.message = message;
         this.option = option;
+        this.member = member;
     }
 
     public Long getId() {
@@ -44,5 +49,9 @@ public class Order extends BaseTimeEntity{
 
     public Option getOption() {
         return option;
+    }
+
+    public Member getMember() {
+        return member;
     }
 }

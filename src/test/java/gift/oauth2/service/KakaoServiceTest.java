@@ -1,14 +1,14 @@
 package gift.oauth2.service;
 
-import gift.global.exception.KakaoTokenApiException;
-import gift.global.exception.KakaoUserApiException;
+import gift.global.exception.KakaoKAuthException;
+import gift.global.exception.KakaoKApiException;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
 import gift.oauth2.dto.KakaoTokenRequest;
 import gift.oauth2.dto.KakaoTokenResponse;
 import gift.oauth2.dto.KakaoUserInfoResponse;
 import gift.oauth2.properties.KakaoProperties;
-import org.assertj.core.api.SoftAssertions;
+import gift.oauth2.repository.KakaoTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
+
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.SoftAssertions.*;
@@ -39,6 +40,9 @@ class KakaoServiceTest {
 
     @MockitoBean
     private JWTUtil jwtUtil;
+
+    @MockitoBean
+    private KakaoTokenRepository kakaoTokenRepository;
 
     @MockitoBean
     private KakaoProperties kakaoProperties;
@@ -92,13 +96,14 @@ class KakaoServiceTest {
     @DisplayName("토큰 요청 실패")
     void getTokenFail() {
 
+
         // given
         String errorResponse = """
-        {
-            "msg": "[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.",
-            "code": -3
-        }
-    """;
+                {
+                    "error" : "KOE001",
+                    "error_description" : "잘못된 형식의 요청인 경우"
+                }
+                """;
 
         mockServer.expect(requestTo("https://kauth.kakao.com/oauth/token"))
                 .andRespond(
@@ -109,13 +114,13 @@ class KakaoServiceTest {
 
         // when & then
         assertThatThrownBy(()->kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri")))
-                .isInstanceOf(KakaoTokenApiException.class)
+                .isInstanceOf(KakaoKAuthException.class)
                 .satisfies((ex)-> {
-                    KakaoTokenApiException exception = (KakaoTokenApiException) ex;
+                    KakaoKAuthException exception = (KakaoKAuthException) ex;
                     assertSoftly(softly -> {
-                        softly.assertThat(exception.getkAuthExceptionResponse().msg())
-                                .isEqualTo("[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.");
-                        softly.assertThat(exception.getkAuthExceptionResponse().code()).isEqualTo(-3);
+                        softly.assertThat(exception.getkAuthExceptionResponse().error())
+                                .isEqualTo("KOE001");
+                        softly.assertThat(exception.getkAuthExceptionResponse().error_description()).isEqualTo("잘못된 형식의 요청인 경우");
                     });
                 });
     }
@@ -172,11 +177,11 @@ class KakaoServiceTest {
 
         // given
         String errorResponse = """
-                {
-                    "error" : "KOE001",
-                    "error_description" : "잘못된 형식의 요청인 경우"
-                }
-                """;
+        {
+            "msg": "[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.",
+            "code": -3
+        }
+    """;
 
         mockServer.expect(requestTo("https://kapi.kakao.com/v2/user/me"))
                 .andRespond(
@@ -188,17 +193,15 @@ class KakaoServiceTest {
         // when & then
         assertThatThrownBy(()->kakaoService.getUserInfo(new KakaoTokenResponse("temp", "temp", "temp", 30L,
                 "temp", 30L, "temp")).get())
-                .isInstanceOf(KakaoUserApiException.class)
+                .isInstanceOf(KakaoKApiException.class)
                 .satisfies(ex-> {
-                    KakaoUserApiException exception = (KakaoUserApiException) ex;
+                    KakaoKApiException exception = (KakaoKApiException) ex;
                     assertSoftly(softly -> {
-                        softly.assertThat(exception.getkApiExceptionResponse().error())
-                                .isEqualTo("KOE001");
-                        softly.assertThat(exception.getkApiExceptionResponse().error_description())
-                                .isEqualTo("잘못된 형식의 요청인 경우");
+                        softly.assertThat(exception.getkApiExceptionResponse().msg())
+                                .isEqualTo("[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.");
+                        softly.assertThat(exception.getkApiExceptionResponse().code())
+                                .isEqualTo(-3);
                     });
                 });
     }
-
-
 }

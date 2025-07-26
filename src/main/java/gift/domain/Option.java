@@ -66,7 +66,7 @@ public class Option {
         if (quantity <= 0)
             throw new BadRequestEntityException("주문은 1개 이상 가능합니다.");
         if (this.quantity - quantity < 0)
-            throw new BadRequestEntityException("보유한 수량만큼 주문할 수 있습니다.");
+            throw new BadRequestEntityException("죄송합니다. 해당 상품의 재고는 현재 " + this.quantity + "개 입니다"  );
         this.quantity -= quantity;
     }
 }

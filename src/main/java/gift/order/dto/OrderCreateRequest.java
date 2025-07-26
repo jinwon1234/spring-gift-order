@@ -1,6 +1,8 @@
 package gift.order.dto;
 
-public record OrderCreateDto(
-        
+public record OrderCreateRequest(
+        Long wishProductId,
+        int quantity,
+        String message
 ) {
 }
