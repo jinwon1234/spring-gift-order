@@ -47,7 +47,7 @@ public class ViewFilter implements Filter {
     }
 
     private boolean passRequestURI(String requestURI) {
-        if (requestURI.startsWith("/api") || requestURI.equals("/login")) return true;
+        if (requestURI.startsWith("/api") || requestURI.startsWith("/login")) return true;
         return false;
     }
 }

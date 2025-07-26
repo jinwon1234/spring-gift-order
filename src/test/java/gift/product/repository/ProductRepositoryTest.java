@@ -4,6 +4,7 @@ import gift.domain.Member;
 import gift.domain.Product;
 import gift.domain.Role;
 import gift.member.repository.MemberRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.*;
 
 @DataJpaTest
 @Transactional
@@ -43,10 +45,12 @@ class ProductRepositoryTest {
         Product findProduct = productRepository.findById(saved.getId()).get();
 
         // then
-        assertThat(findProduct.getId()).isEqualTo(saved.getId());
-        assertThat(findProduct.getName()).isEqualTo(saved.getName());
-        assertThat(findProduct.getPrice()).isEqualTo(saved.getPrice());
-        assertThat(findProduct.getImageUrl()).isEqualTo(saved.getImageUrl());
+        assertSoftly(softly -> {
+            softly.assertThat(findProduct.getId()).isEqualTo(saved.getId());
+            softly.assertThat(findProduct.getName()).isEqualTo(saved.getName());
+            softly.assertThat(findProduct.getPrice()).isEqualTo(saved.getPrice());
+            softly.assertThat(findProduct.getImageUrl()).isEqualTo(saved.getImageUrl());
+        });
     }
 
     @Test
@@ -99,7 +103,7 @@ class ProductRepositoryTest {
         }
 
         // when
-        Page<Product> result = productRepository.findByMemberIdWithOptionsAndPage(member.getId(), PageRequest.of(0, 5));
+        Page<Product> result = productRepository.findByMemberIdWithPage(member.getId(), PageRequest.of(0, 5));
 
         // then
         assertThat(result.getSize()).isEqualTo(5);

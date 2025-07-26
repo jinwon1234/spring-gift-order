@@ -11,6 +11,7 @@ import gift.option.dto.OptionCreateRequest;
 import gift.product.dto.ProductCreateRequest;
 import gift.product.dto.ProductResponse;
 import gift.product.dto.ProductUpdateRequest;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.*;
 
 
 @SpringBootTest
@@ -41,10 +43,13 @@ class ProductServiceTest {
         Product product = addProductCase(member);
 
         ProductResponse findProduct = productService.findProduct(product.getId());
-        assertThat(product.getId()).isEqualTo(findProduct.getId());
-        assertThat(product.getName()).isEqualTo(findProduct.getName());
-        assertThat(product.getPrice()).isEqualTo(findProduct.getPrice());
-        assertThat(product.getImageUrl()).isEqualTo(findProduct.getImageURL());
+
+        assertSoftly(softly -> {
+            softly.assertThat(product.getId()).isEqualTo(findProduct.getId());
+            softly.assertThat(product.getName()).isEqualTo(findProduct.getName());
+            softly.assertThat(product.getPrice()).isEqualTo(findProduct.getPrice());
+            softly.assertThat(product.getImageUrl()).isEqualTo(findProduct.getImageURL());
+        });
     }
 
     @Test
@@ -142,9 +147,11 @@ class ProductServiceTest {
 
         ProductResponse response = productService.findProduct(product.getId());
 
-        assertThat(response.getName()).isEqualTo(updateDto.getName());
-        assertThat(response.getPrice()).isEqualTo(updateDto.getPrice());
-        assertThat(response.getImageURL()).isEqualTo(updateDto.getImageURL());
+        assertSoftly(softly -> {
+            softly.assertThat(response.getName()).isEqualTo(updateDto.getName());
+            softly.assertThat(response.getPrice()).isEqualTo(updateDto.getPrice());
+            softly.assertThat(response.getImageURL()).isEqualTo(updateDto.getImageURL());
+        });
     }
 
     @Test

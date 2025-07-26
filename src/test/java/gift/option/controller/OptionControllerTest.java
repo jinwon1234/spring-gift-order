@@ -13,6 +13,7 @@ import gift.option.dto.OptionUpdateRequest;
 import gift.option.repository.OptionRepository;
 import gift.product.repository.ProductRepository;
 import gift.wishproduct.repository.WishProductRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class OptionControllerTest {
@@ -121,8 +123,10 @@ class OptionControllerTest {
 
         Option updated = optionRepository.findById(save.getId()).get();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(updated.getQuantity()).isEqualTo(10);
+        assertSoftly(softly-> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            softly.assertThat(updated.getQuantity()).isEqualTo(10);
+        });
     }
 
     @Test
@@ -136,11 +140,12 @@ class OptionControllerTest {
                 .retrieve()
                 .toEntity(OptionResponse.class);
 
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().id()).isEqualTo(save.getId());
-        assertThat(response.getBody().name()).isEqualTo(save.getName());
-        assertThat(response.getBody().quantity()).isEqualTo(save.getQuantity());
+        assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            softly.assertThat(response.getBody().id()).isEqualTo(save.getId());
+            softly.assertThat(response.getBody().name()).isEqualTo(save.getName());
+            softly.assertThat(response.getBody().quantity()).isEqualTo(save.getQuantity());
+        });
 
     }
 

@@ -4,6 +4,7 @@ import gift.domain.*;
 import gift.member.repository.MemberRepository;
 import gift.option.repository.OptionRepository;
 import gift.product.repository.ProductRepository;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,10 +53,12 @@ class WishProductRepositoryTest {
         WishProduct findWishProduct = wishProductRepository.findById(saved.getId()).get();
 
         // then
-        assertThat(saved.getId()).isEqualTo(findWishProduct.getId());
-        assertThat(findWishProduct.getOwner().getId()).isEqualTo(member.getId());
-        assertThat(findWishProduct.getProduct().getId()).isEqualTo(product.getId());
-        assertThat(findWishProduct.getQuantity()).isEqualTo(saved.getQuantity());
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(saved.getId()).isEqualTo(findWishProduct.getId());
+            softly.assertThat(findWishProduct.getOwner().getId()).isEqualTo(member.getId());
+            softly.assertThat(findWishProduct.getProduct().getId()).isEqualTo(product.getId());
+            softly.assertThat(findWishProduct.getQuantity()).isEqualTo(saved.getQuantity());
+        });
     }
 
     @Test
@@ -75,10 +78,12 @@ class WishProductRepositoryTest {
         WishProduct findWishProduct = wishProductRepository.findByOwnerIdAndOptionId(member.getId(), option.getId()).get();
 
         // then
-        assertThat(saved.getId()).isEqualTo(findWishProduct.getId());
-        assertThat(findWishProduct.getOwner().getId()).isEqualTo(member.getId());
-        assertThat(findWishProduct.getProduct().getId()).isEqualTo(product.getId());
-        assertThat(findWishProduct.getQuantity()).isEqualTo(saved.getQuantity());
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(saved.getId()).isEqualTo(findWishProduct.getId());
+            softly.assertThat(findWishProduct.getOwner().getId()).isEqualTo(member.getId());
+            softly.assertThat(findWishProduct.getProduct().getId()).isEqualTo(product.getId());
+            softly.assertThat(findWishProduct.getQuantity()).isEqualTo(saved.getQuantity());
+        });
 
     }
 

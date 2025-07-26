@@ -11,6 +11,7 @@ import gift.member.dto.MemberResponse;
 import gift.member.dto.MemberUpdateReqForAdmin;
 import gift.member.dto.MemberUpdateRequest;
 import gift.member.repository.MemberRepository;
+import gift.oauth2.dto.SocialLoginRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Transactional
 @Service
@@ -48,6 +51,21 @@ public class MemberServiceV1 implements MemberService{
                 Role.valueOf(memberCreateDto.getRole())));
 
         return saved.getId();
+    }
+
+    @Override
+    public Member socialLogin(SocialLoginRequest socialLoginRequest) {
+
+        Optional<Member> findMember = memberRepository.findByEmail(socialLoginRequest.email());
+
+        if (findMember.isPresent()) return findMember.get();
+
+        String password = UUID.randomUUID().toString();
+        String encodedPassword = passwordEncoder.encode(password);
+
+        Member saved = memberRepository.save(new Member(socialLoginRequest.email(), encodedPassword, Role.REGULAR));
+
+        return saved;
     }
 
     @Override
