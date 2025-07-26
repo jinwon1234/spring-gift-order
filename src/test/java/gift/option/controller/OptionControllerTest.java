@@ -1,9 +1,6 @@
 package gift.option.controller;
 
-import gift.domain.Member;
-import gift.domain.Option;
-import gift.domain.Product;
-import gift.domain.Role;
+import gift.domain.*;
 import gift.jwt.JWTUtil;
 import gift.member.repository.MemberRepository;
 import gift.option.dto.OptionCreateListRequest;
@@ -60,7 +57,7 @@ class OptionControllerTest {
 
     @BeforeEach
     void setUp() {
-        member = memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR));
+        member = memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE));
         Product save = productRepository.save(new Product("스윙칩", 3000, "data:image/~base64", member));
         product = save;
 

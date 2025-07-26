@@ -3,6 +3,7 @@ package gift.product.repository;
 import gift.domain.Member;
 import gift.domain.Product;
 import gift.domain.Role;
+import gift.domain.Social;
 import gift.member.repository.MemberRepository;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +37,7 @@ class ProductRepositoryTest {
     void save() {
 
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         memberRepository.save(member);
         Product saved = productRepository.save(product);
@@ -58,7 +59,7 @@ class ProductRepositoryTest {
     void findByMemberIdWithOptions() {
 
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         memberRepository.save(member);
         Product product = new Product("스윙칩", 3000, "image", member);
         productRepository.save(product);
@@ -75,7 +76,7 @@ class ProductRepositoryTest {
     void deleteById() {
 
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         memberRepository.save(member);
         Product product = new Product("스윙칩", 3000, "image", member);
         productRepository.save(product);
@@ -94,7 +95,7 @@ class ProductRepositoryTest {
     void findByMemberIdWithPage() {
 
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         memberRepository.save(member);
 
         for (int i=0; i<11; i++) {

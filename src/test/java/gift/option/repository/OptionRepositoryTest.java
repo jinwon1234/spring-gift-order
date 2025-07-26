@@ -1,9 +1,6 @@
 package gift.option.repository;
 
-import gift.domain.Member;
-import gift.domain.Option;
-import gift.domain.Product;
-import gift.domain.Role;
+import gift.domain.*;
 import gift.global.exception.NotFoundEntityException;
 import gift.member.repository.MemberRepository;
 import gift.product.repository.ProductRepository;
@@ -38,7 +35,7 @@ class OptionRepositoryTest {
     @DisplayName("옵션 추가 & 조회(Product 페치 조인)")
     void findByIdWithProduct() {
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         memberRepository.save(member);
         productRepository.save(product);
@@ -60,7 +57,7 @@ class OptionRepositoryTest {
     @DisplayName("옵션 삭제")
     void deleteById() {
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         memberRepository.save(member);
         productRepository.save(product);
@@ -79,7 +76,7 @@ class OptionRepositoryTest {
     @DisplayName("중복된 이름 숫자 조회")
     void countByProductIdAndOptionNames() {
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         memberRepository.save(member);
         productRepository.save(product);

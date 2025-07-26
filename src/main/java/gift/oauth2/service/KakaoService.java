@@ -2,6 +2,7 @@ package gift.oauth2.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.domain.Member;
+import gift.domain.Social;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
 import gift.oauth2.dto.*;
@@ -79,7 +80,7 @@ public class KakaoService {
     private String createAccessToken(KakaoUserInfoResponse userInfoResponse) {
         KakaoAccount kakaoAccount = userInfoResponse.kakao_account();
 
-        Member member = memberService.socialLogin(new SocialLoginRequest(kakaoAccount.email()));
+        Member member = memberService.socialLogin(new SocialLoginRequest(kakaoAccount.email(), Social.KAKAO));
 
         String jwt = jwtUtil.createJWT(
                 member.getEmail(),

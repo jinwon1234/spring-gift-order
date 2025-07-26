@@ -66,7 +66,7 @@ class WishProductControllerTest {
 
     @BeforeEach
     void setUp() {
-        member = memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR));
+        member = memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE));
         Product save = productRepository.save(new Product("스윙칩", 3000, "data:image/~base64", member));
         product = save;
         option = optionRepository.save(new Option("옵션1", 10, product));

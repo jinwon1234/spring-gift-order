@@ -2,6 +2,7 @@ package gift.member.repository;
 
 import gift.domain.Member;
 import gift.domain.Role;
+import gift.domain.Social;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class MemberRepositoryTest {
     void save() {
 
         // given
-        Member member = new Member("ljw0626@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw0626@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
 
         // when
         Member save = memberRepository.save(member);
@@ -50,7 +51,7 @@ class MemberRepositoryTest {
     @DisplayName("이메일로 회원 조회")
     void findByEmail() {
         // given
-        Member member = new Member("ljw0626@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw0626@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
 
         // when
         Member save = memberRepository.save(member);
@@ -69,7 +70,7 @@ class MemberRepositoryTest {
     @DisplayName("회원 삭제")
     void deleteById() {
         // given
-        Member member = new Member("ljw0626@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw0626@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
 
         // when
         Member save = memberRepository.save(member);
@@ -86,7 +87,7 @@ class MemberRepositoryTest {
 
         // given
         for (int i=0; i<11; i++) {
-            Member member = new Member(i + "user@naver.com", "Qwer1234!!", Role.REGULAR);
+            Member member = new Member(i + "user@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
             memberRepository.save(member);
         }
 
