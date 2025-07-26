@@ -1,12 +1,14 @@
 package gift.oauth2.service;
 
-import gift.global.exception.KakaoApiException;
+import gift.global.exception.KakaoTokenApiException;
+import gift.global.exception.KakaoUserApiException;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
 import gift.oauth2.dto.KakaoTokenRequest;
 import gift.oauth2.dto.KakaoTokenResponse;
 import gift.oauth2.dto.KakaoUserInfoResponse;
 import gift.oauth2.properties.KakaoProperties;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,12 +109,14 @@ class KakaoServiceTest {
 
         // when & then
         assertThatThrownBy(()->kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri")))
-                .isInstanceOf(KakaoApiException.class)
+                .isInstanceOf(KakaoTokenApiException.class)
                 .satisfies((ex)-> {
-                    KakaoApiException exception = (KakaoApiException) ex;
-                    assertThat(exception.getDetails().get("msg"))
-                            .isEqualTo("[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.");
-                    assertThat(exception.getDetails().get("code")).isEqualTo(-3);
+                    KakaoTokenApiException exception = (KakaoTokenApiException) ex;
+                    assertSoftly(softly -> {
+                        softly.assertThat(exception.getkAuthExceptionResponse().msg())
+                                .isEqualTo("[spring-gift] App disabled [talk_message] scopes for [TALK_MEMO_DEFAULT_SEND] API on developers.kakao.com. Enable it first.");
+                        softly.assertThat(exception.getkAuthExceptionResponse().code()).isEqualTo(-3);
+                    });
                 });
     }
 
@@ -184,11 +188,15 @@ class KakaoServiceTest {
         // when & then
         assertThatThrownBy(()->kakaoService.getUserInfo(new KakaoTokenResponse("temp", "temp", "temp", 30L,
                 "temp", 30L, "temp")).get())
-                .isInstanceOf(KakaoApiException.class)
+                .isInstanceOf(KakaoUserApiException.class)
                 .satisfies(ex-> {
-                    KakaoApiException exception = (KakaoApiException) ex;
-                    assertThat(exception.getDetails().get("error")).isEqualTo("KOE001");
-                    assertThat(exception.getDetails().get("error_description")).isEqualTo("잘못된 형식의 요청인 경우");
+                    KakaoUserApiException exception = (KakaoUserApiException) ex;
+                    assertSoftly(softly -> {
+                        softly.assertThat(exception.getkApiExceptionResponse().error())
+                                .isEqualTo("KOE001");
+                        softly.assertThat(exception.getkApiExceptionResponse().error_description())
+                                .isEqualTo("잘못된 형식의 요청인 경우");
+                    });
                 });
     }
 

@@ -3,6 +3,7 @@ package gift.global;
 import gift.global.error.ErrorResponse;
 import gift.global.error.ObjectErrorResponse;
 import gift.global.exception.*;
+import gift.oauth2.errorhandler.KakaoUserResponseHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -59,12 +60,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(KakaoApiException.class)
-    public ResponseEntity<Map<String,Object>> handleKakaoApiException(KakaoApiException ex) {
+    @ExceptionHandler(KakaoTokenApiException.class)
+    public ResponseEntity<Map<String,Object>> handleKakaoTokenApiException(KakaoTokenApiException ex) {
 
         return ResponseEntity.status(ex.getStatus()).body(
-                Map.of("message", ex.getMessage(), "details", ex.getDetails()));
+                Map.of("message", ex.getMessage(), "details", ex.getkAuthExceptionResponse()));
+    }
 
+    @ExceptionHandler(KakaoUserApiException.class)
+    public ResponseEntity<Map<String,Object>> handleKakaoUserApiException(KakaoUserApiException ex) {
+
+        return ResponseEntity.status(ex.getStatus()).body(
+                Map.of("message", ex.getMessage(), "details", ex.getkApiExceptionResponse()));
     }
 
     @ExceptionHandler(ResourceAccessException.class)
