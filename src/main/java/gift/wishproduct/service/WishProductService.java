@@ -21,5 +21,5 @@ public interface WishProductService {
 
     void updateQuantity(Long id, WishProductUpdateReq wishProductUpdateReq, String email);
 
-    WishProduct findByIdWithOption(Long id);
+    WishProduct findByIdWithOptionAndProduct(Long id);
 }

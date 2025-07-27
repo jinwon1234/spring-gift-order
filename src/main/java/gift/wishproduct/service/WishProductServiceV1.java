@@ -108,7 +108,7 @@ public class WishProductServiceV1 implements WishProductService {
     }
 
     @Override
-    public WishProduct findByIdWithOption(Long id) {
+    public WishProduct findByIdWithOptionAndProduct(Long id) {
         return wishProductRepository.findByIdFetchAll(id)
                 .orElseThrow(() -> new NotFoundEntityException("존재하지 않는 위시 상품입니다."));
     }

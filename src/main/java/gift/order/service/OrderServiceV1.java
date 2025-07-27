@@ -32,7 +32,7 @@ public class OrderServiceV1 implements OrderService {
 
         Member findMember = memberService.findByEmail(authMember.getEmail());
 
-        WishProduct wishProduct = wishProductService.findByIdWithOption(orderCreateRequest.wishProductId());
+        WishProduct wishProduct = wishProductService.findByIdWithOptionAndProduct(orderCreateRequest.wishProductId());
         Option option = wishProduct.getOption();
         Product product = wishProduct.getProduct();
 
@@ -41,7 +41,7 @@ public class OrderServiceV1 implements OrderService {
         if (findMember.getSocial() == Social.KAKAO) {
             kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate(
                     product.getName(), option.getName(), product.getPrice(),
-                    orderCreateRequest.quantity(), orderCreateRequest.message(),
+                    orderCreateRequest.quantity(),orderCreateRequest.message(),
                     product.getPrice() * orderCreateRequest.quantity()), findMember.getId()
             );
         }
