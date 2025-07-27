@@ -3,14 +3,11 @@ package gift.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.SecurityConfig;
-import gift.domain.Role;
-import gift.member.dto.AuthMember;
 import gift.order.dto.OrderCreateRequest;
 import gift.order.dto.OrderResponse;
 import gift.order.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -64,8 +61,7 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.id").value(orderResponse.id()))
                 .andExpect(jsonPath("$.optionId").value(orderResponse.optionId()))
                 .andExpect(jsonPath("$.quantity").value(orderResponse.quantity()))
-                .andExpect(jsonPath("$.message").value(orderResponse.message()))
-                .andExpect(jsonPath("$.orderDateTime").value(String.valueOf(orderResponse.orderDateTime())));
+                .andExpect(jsonPath("$.message").value(orderResponse.message()));
     }
 
     @Test

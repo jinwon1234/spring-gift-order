@@ -50,8 +50,8 @@ public class KakaoService {
     }
 
     @Transactional
-    public Cookie socialLogin(KakaoTokenRequest kakaoTokenRequest) {
-        KakaoTokenResponse token = getToken(kakaoTokenRequest)
+    public Cookie socialLogin(String code) {
+        KakaoTokenResponse token = getToken(code)
                 .orElseThrow(()-> new IllegalStateException("API 응답이 비어있습니다. [카카오]."));
         KakaoUserInfoResponse userInfo = getUserInfo(token)
                 .orElseThrow(()-> new IllegalStateException("API 응답이 비어있습니다. [카카오]"));
@@ -96,12 +96,12 @@ public class KakaoService {
         }
     }
 
-    public Optional<KakaoTokenResponse> getToken(KakaoTokenRequest request) {
+    public Optional<KakaoTokenResponse> getToken(String code) {
         LinkedMultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
-        form.add("client_id", request.key());
-        form.add("redirect_uri", request.redirectUri());
-        form.add("code", request.code());
+        form.add("client_id", kakaoProperties.getKakaoRestApiKey());
+        form.add("redirect_uri",kakaoProperties.getKakaoRedirectUri());
+        form.add("code", code);
 
         ResponseEntity<KakaoTokenResponse> kakaoTokenResponse = restClient.post()
                 .uri(kakaoProperties.getkAuthUri() + "/oauth/token")

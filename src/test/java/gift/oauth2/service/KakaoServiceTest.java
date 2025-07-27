@@ -1,14 +1,18 @@
 package gift.oauth2.service;
 
+import gift.domain.KakaoToken;
+import gift.domain.Member;
+import gift.domain.Role;
+import gift.domain.Social;
 import gift.global.exception.KakaoKAuthException;
 import gift.global.exception.KakaoKApiException;
 import gift.jwt.JWTUtil;
 import gift.member.service.MemberService;
-import gift.oauth2.dto.KakaoTokenRequest;
 import gift.oauth2.dto.KakaoTokenResponse;
 import gift.oauth2.dto.KakaoUserInfoResponse;
 import gift.oauth2.properties.KakaoProperties;
 import gift.oauth2.repository.KakaoTokenRepository;
+import gift.order.dto.KakaoOrderMessageTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,8 +24,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.SoftAssertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -75,8 +83,7 @@ class KakaoServiceTest {
 
         // when
 
-        KakaoTokenResponse token = kakaoService.getToken(
-                new KakaoTokenRequest("clientId", "code", "redirectUri")).get();
+        KakaoTokenResponse token = kakaoService.getToken("code").get();
 
         // then
         assertSoftly(
@@ -113,7 +120,7 @@ class KakaoServiceTest {
                 );
 
         // when & then
-        assertThatThrownBy(()->kakaoService.getToken(new KakaoTokenRequest("clientId", "code", "redirectUri")))
+        assertThatThrownBy(()->kakaoService.getToken("code"))
                 .isInstanceOf(KakaoKAuthException.class)
                 .satisfies((ex)-> {
                     KakaoKAuthException exception = (KakaoKAuthException) ex;
@@ -203,5 +210,80 @@ class KakaoServiceTest {
                                 .isEqualTo(-3);
                     });
                 });
+    }
+
+    @Test
+    @DisplayName("메시지 보내기 성공")
+    void sendMessageSuccess() {
+
+        // given
+        Member member = new Member("user@email.com", "Qwer1234", Role.REGULAR, Social.KAKAO);
+        KakaoToken kakaoToken = new KakaoToken("accessToken", "refreshToken", member);
+
+        given(kakaoTokenRepository.findByMemberId(any()))
+                .willReturn(Optional.of(kakaoToken));
+
+        mockServer.expect(requestTo(kakaoProperties.getkApiUri() + "/v2/api/talk/memo/send"))
+                .andRespond(withStatus(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+
+        // when
+        kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate
+                ("상품1", "옵션1", 100, 20,
+                        "메시지", 2000), member.getId());
+
+        // then
+        verify(kakaoTokenRepository).findByMemberId(any());
+        verifyNoMoreInteractions(kakaoTokenRepository);
+    }
+
+
+    @Test
+    @DisplayName("메시지 보내기 실패 - 토큰 재발급 실패")
+    void sendMessageFail()  {
+
+        // given
+        String errorResponse1 = """
+        {
+            "msg": "액세스 토큰 만료",
+            "code": -401
+        }
+    """;
+
+
+        String errorResponse2 = """
+                {
+                    "error" : "KOE001",
+                    "error_description" : "잘못된 형식의 요청인 경우"
+                }
+                """;
+
+        Member member = new Member("user@email.com", "Qwer1234", Role.REGULAR, Social.KAKAO);
+        KakaoToken kakaoToken = new KakaoToken("accessToken", "refreshToken", member);
+
+        given(kakaoTokenRepository.findByMemberId(any()))
+                .willReturn(Optional.of(kakaoToken));
+
+        mockServer.expect(requestTo(kakaoProperties.getkApiUri() + "/v2/api/talk/memo/send"))
+                .andRespond(withStatus(HttpStatus.BAD_REQUEST)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(errorResponse1));
+
+
+        mockServer.expect(requestTo(kakaoProperties.getkAuthUri() + "/oauth/token"))
+                .andRespond(withStatus(HttpStatus.BAD_REQUEST)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(errorResponse2));
+
+        // when & then
+        assertThatThrownBy(()->kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate
+                ("상품1", "옵션1", 100, 20,
+                        "메시지", 2000), member.getId())
+        ).isInstanceOf(KakaoKAuthException.class);
+
+        verify(kakaoTokenRepository).findByMemberId(any());
+        verifyNoMoreInteractions(kakaoTokenRepository);
+
     }
 }
