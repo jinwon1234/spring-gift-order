@@ -38,6 +38,11 @@ public class OrderServiceV1 implements OrderService {
 
         option.subtractQuantity(orderCreateRequest.quantity());
 
+        Order save = orderRepository.save(new Order(orderCreateRequest.quantity(), orderCreateRequest.message(),
+                option, findMember));
+
+        wishProductService.deleteById(wishProduct.getId(), authMember.getEmail());
+
         if (findMember.getSocial() == Social.KAKAO) {
             kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate(
                     product.getName(), option.getName(), product.getPrice(),
@@ -45,11 +50,6 @@ public class OrderServiceV1 implements OrderService {
                     product.getPrice() * orderCreateRequest.quantity()), findMember.getId()
             );
         }
-
-        Order save = orderRepository.save(new Order(orderCreateRequest.quantity(), orderCreateRequest.message(),
-                option, findMember));
-
-        wishProductService.deleteById(wishProduct.getId(), authMember.getEmail());
 
         return new OrderResponse(save.getId(), save.getOption().getId(),
                 save.getQuantity(), save.getCreatedDate(), save.getMessage());
