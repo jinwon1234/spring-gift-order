@@ -5,17 +5,13 @@ import gift.global.exception.BadRequestEntityException;
 import gift.member.dto.AuthMember;
 import gift.member.service.MemberService;
 import gift.oauth2.service.KakaoService;
-import gift.order.dto.OrderCreateRequest;
+import gift.order.dto.CartOrderCreateRequest;
 import gift.order.dto.OrderResponse;
 import gift.order.repository.OrderRepository;
-import gift.wishproduct.repository.WishProductRepository;
 import gift.wishproduct.service.WishProductService;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,7 +48,7 @@ class OrderServiceV1Test {
         Product product = addProductCase(member);
         Option option = addOptionCase(product);
         WishProduct wishProduct = addWishProduct(product, member, option,10);
-        OrderCreateRequest dto = new OrderCreateRequest(wishProduct.getId(), 10, "메시지");
+        CartOrderCreateRequest dto = new CartOrderCreateRequest(wishProduct.getId(), 10, "메시지");
 
         Order order = addOrder(option,member,dto);
 
@@ -67,7 +63,7 @@ class OrderServiceV1Test {
 
 
         // when
-        OrderResponse save = orderServiceV1.save(dto, new AuthMember(member.getEmail(), member.getRole()));
+        OrderResponse save = orderServiceV1.saveCartOrder(dto, new AuthMember(member.getEmail(), member.getRole()));
 
 
         // then
@@ -93,7 +89,7 @@ class OrderServiceV1Test {
         Product product = addProductCase(member);
         Option option = addOptionCase(product);
         WishProduct wishProduct = addWishProduct(product, member, option,10);
-        OrderCreateRequest dto = new OrderCreateRequest(wishProduct.getId(), 10001, "메시지");
+        CartOrderCreateRequest dto = new CartOrderCreateRequest(wishProduct.getId(), 10001, "메시지");
 
         given(memberService.findByEmail(member.getEmail()))
                 .willReturn(member);
@@ -103,7 +99,7 @@ class OrderServiceV1Test {
 
 
         // when & then
-        assertThatThrownBy(()->orderServiceV1.save(
+        assertThatThrownBy(()->orderServiceV1.saveCartOrder(
                 dto, new AuthMember(member.getEmail(), member.getRole()))
         ).isInstanceOf(BadRequestEntityException.class)
                 .satisfies(exception -> {
@@ -132,7 +128,7 @@ class OrderServiceV1Test {
                 member, product,option);
     }
 
-    private Order addOrder(Option option, Member member, OrderCreateRequest dto) {
+    private Order addOrder(Option option, Member member, CartOrderCreateRequest dto) {
         return new Order(dto.quantity(),dto.message(),option, member);
     }
 

@@ -3,7 +3,7 @@ package gift.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.SecurityConfig;
-import gift.order.dto.OrderCreateRequest;
+import gift.order.dto.CartOrderCreateRequest;
 import gift.order.dto.OrderResponse;
 import gift.order.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
@@ -45,10 +45,10 @@ class OrderControllerTest {
 
         OrderResponse orderResponse = new OrderResponse(1L, 1L, 30, LocalDateTime.now(), "메시지");
 
-        given(orderService.save(any(),any()))
+        given(orderService.saveCartOrder(any(),any()))
                 .willReturn(orderResponse);
 
-        OrderCreateRequest orderRequest = new OrderCreateRequest(1L, 30, "메시지");
+        CartOrderCreateRequest orderRequest = new CartOrderCreateRequest(1L, 30, "메시지");
 
         String content = objectMapper.writeValueAsString(orderRequest);
 
@@ -67,7 +67,7 @@ class OrderControllerTest {
     @Test
     @DisplayName("주문 실패 - 주문 수량은 1개 이상")
     void createOrderFail() throws Exception {
-        OrderCreateRequest orderRequest = new OrderCreateRequest(null, 0, "메시지");
+        CartOrderCreateRequest orderRequest = new CartOrderCreateRequest(null, 0, "메시지");
 
         String content = objectMapper.writeValueAsString(orderRequest);
 
