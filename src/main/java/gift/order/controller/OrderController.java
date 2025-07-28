@@ -25,7 +25,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping()
+    @PostMapping("/cart")
     public ResponseEntity<OrderResponse> createOrderWithCart(@Valid @RequestBody CartOrderCreateRequest orderCreateRequest,
                                                     @MyAuthenticalPrincipal AuthMember authMember) {
 

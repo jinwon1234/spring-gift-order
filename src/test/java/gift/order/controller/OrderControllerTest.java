@@ -53,7 +53,7 @@ class OrderControllerTest {
         String content = objectMapper.writeValueAsString(orderRequest);
 
 
-        mockMvc.perform(post("/api/orders")
+        mockMvc.perform(post("/api/orders/cart")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
                 .andExpect(status().isCreated())
@@ -71,7 +71,7 @@ class OrderControllerTest {
 
         String content = objectMapper.writeValueAsString(orderRequest);
 
-        mockMvc.perform(post("/api/orders")
+        mockMvc.perform(post("/api/orders/cart")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andExpect(status().isBadRequest())
