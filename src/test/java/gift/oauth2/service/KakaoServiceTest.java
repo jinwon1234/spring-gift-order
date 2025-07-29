@@ -228,14 +228,10 @@ class KakaoServiceTest {
                         .contentType(MediaType.APPLICATION_JSON));
 
 
-        // when
+        // when & then
         kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate
                 ("상품1", "옵션1", 100, 20,
-                        "메시지", 2000), member.getId());
-
-        // then
-        verify(kakaoTokenRepository).findByMemberId(any());
-        verifyNoMoreInteractions(kakaoTokenRepository);
+                        "메시지", 2000), kakaoToken);
     }
 
 
@@ -279,11 +275,8 @@ class KakaoServiceTest {
         // when & then
         assertThatThrownBy(()->kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate
                 ("상품1", "옵션1", 100, 20,
-                        "메시지", 2000), member.getId())
+                        "메시지", 2000), kakaoToken)
         ).isInstanceOf(KakaoKAuthException.class);
-
-        verify(kakaoTokenRepository).findByMemberId(any());
-        verifyNoMoreInteractions(kakaoTokenRepository);
 
     }
 }

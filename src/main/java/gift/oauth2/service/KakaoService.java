@@ -65,11 +65,7 @@ public class KakaoService {
     )
     @Async("kakaoMessage")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendOrderMessage(KakaoOrderMessageTemplate messageTemplate, Long memberId) {
-
-        KakaoToken kakaoToken = kakaoTokenRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new NotFoundEntityException("해당 회원의 토큰이 없습니다."));
-
+    public void sendOrderMessage(KakaoOrderMessageTemplate messageTemplate, KakaoToken kakaoToken) {
 
         LinkedMultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("template_id", String.valueOf(122829));
@@ -94,6 +90,11 @@ public class KakaoService {
             reissueToken(kakaoToken);
             throw ex;
         }
+    }
+
+    public KakaoToken findTokenByMemberId(Long memberId) {
+        return kakaoTokenRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundEntityException("해당 회원의 토큰이 없습니다."));
     }
 
     public Optional<KakaoTokenResponse> getToken(String code) {

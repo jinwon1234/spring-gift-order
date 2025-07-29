@@ -77,6 +77,7 @@ class OrderServiceV1Test {
         verify(wishProductService).findByIdWithOptionAndProduct(any());
         verify(orderRepository).save(any());
         verify(wishProductService).deleteById(any(), any());
+        verify(kakaoService).findTokenByMemberId(member.getId());
         verifyNoMoreInteractions(wishProductService,orderRepository,memberService,kakaoService);
     }
 

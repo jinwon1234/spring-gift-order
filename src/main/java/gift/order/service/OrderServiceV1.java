@@ -53,16 +53,6 @@ public class OrderServiceV1 implements OrderService {
                 save.getQuantity(), save.getCreatedDate(), save.getMessage());
     }
 
-    private void sendKakaoMessage(Member findMember, Product product, Option option, int orderCreateRequest, String orderCreateRequest1) {
-        if (findMember.getSocial() == Social.KAKAO) {
-            kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate(
-                    product.getName(), option.getName(), product.getPrice(),
-                    orderCreateRequest, orderCreateRequest1,
-                    product.getPrice() * orderCreateRequest), findMember.getId()
-            );
-        }
-    }
-
     public OrderResponse saveDirectOrder(DirectOrderCreateRequest directOrderCreateRequest, AuthMember authMember) {
         Member findMember = memberService.findByEmail(authMember.getEmail());
 
@@ -78,5 +68,18 @@ public class OrderServiceV1 implements OrderService {
 
         return new OrderResponse(save.getId(), save.getOption().getId(),
                 save.getQuantity(), save.getCreatedDate(), save.getMessage());
+    }
+
+    private void sendKakaoMessage(Member findMember, Product product, Option option, int orderCreateRequest, String orderCreateRequest1) {
+
+        KakaoToken token = kakaoService.findTokenByMemberId(findMember.getId());
+
+        if (findMember.getSocial() == Social.KAKAO) {
+            kakaoService.sendOrderMessage(new KakaoOrderMessageTemplate(
+                    product.getName(), option.getName(), product.getPrice(),
+                    orderCreateRequest, orderCreateRequest1,
+                    product.getPrice() * orderCreateRequest), token
+            );
+        }
     }
 }
