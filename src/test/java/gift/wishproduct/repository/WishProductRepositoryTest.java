@@ -41,7 +41,7 @@ class WishProductRepositoryTest {
     @DisplayName("위시 상품 저장 & 조회")
     void save() {
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         Option option = new Option("옵션1", 10, product);
         memberRepository.save(member);
@@ -66,7 +66,7 @@ class WishProductRepositoryTest {
     void findByOwnerIdAndProductId() {
 
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         Option option = new Option("옵션1", 10, product);
         memberRepository.save(member);
@@ -91,7 +91,7 @@ class WishProductRepositoryTest {
     @DisplayName("자신의 위시리스트 조회")
     void findWithProductByOwnerId() {
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         Option option = new Option("옵션1", 10, product);
         memberRepository.save(member);
@@ -110,7 +110,7 @@ class WishProductRepositoryTest {
     @DisplayName("위시 상품 삭제")
     void deleteById() {
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         Option option = new Option("옵션1", 10, product);
         memberRepository.save(member);
@@ -131,7 +131,7 @@ class WishProductRepositoryTest {
     void findWithProductByOwnerIdWithPage() {
 
         // given
-        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product("스윙칩", 3000, "image", member);
         Option option = new Option("옵션1", 10, product);
         memberRepository.save(member);

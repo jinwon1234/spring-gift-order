@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.PageResponse;
-import gift.domain.Member;
-import gift.domain.Option;
-import gift.domain.Product;
-import gift.domain.Role;
+import gift.domain.*;
 import gift.global.error.ErrorResponse;
 import gift.jwt.JWTUtil;
 import gift.member.repository.MemberRepository;
@@ -64,7 +61,7 @@ class ProductControllerTest {
 
     @BeforeEach
     void setUp() {
-        saved = memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR));
+        saved = memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE));
 
         String token = jwtUtil
                 .createJWT(saved.getEmail(), saved.getRole().toString(), 1000 * 60L);

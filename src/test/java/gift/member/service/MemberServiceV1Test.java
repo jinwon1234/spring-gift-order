@@ -3,6 +3,7 @@ package gift.member.service;
 
 import gift.domain.Member;
 import gift.domain.Role;
+import gift.domain.Social;
 import gift.global.exception.AuthorizationException;
 import gift.global.exception.BadRequestEntityException;
 import gift.global.exception.DuplicateEntityException;
@@ -351,7 +352,7 @@ class MemberServiceV1Test {
     }
 
     Member createMember() {
-        return new Member("ljw2109@naver.com", "curPassword", Role.REGULAR);
+        return new Member("ljw2109@naver.com", "curPassword", Role.REGULAR, Social.NONE);
     }
 
 }

@@ -2,6 +2,7 @@ package gift.member.service;
 
 import gift.domain.Member;
 import gift.domain.Role;
+import gift.domain.Social;
 import gift.global.exception.AuthorizationException;
 import gift.global.exception.BadRequestEntityException;
 import gift.global.exception.DuplicateEntityException;
@@ -48,7 +49,7 @@ public class MemberServiceV1 implements MemberService{
         String encodedPassword = passwordEncoder.encode(memberCreateDto.getPassword());
 
         Member saved = memberRepository.save(new Member(memberCreateDto.getEmail(), encodedPassword,
-                Role.valueOf(memberCreateDto.getRole())));
+                Role.valueOf(memberCreateDto.getRole()), Social.NONE));
 
         return saved.getId();
     }
@@ -63,7 +64,7 @@ public class MemberServiceV1 implements MemberService{
         String password = UUID.randomUUID().toString();
         String encodedPassword = passwordEncoder.encode(password);
 
-        Member saved = memberRepository.save(new Member(socialLoginRequest.email(), encodedPassword, Role.REGULAR));
+        Member saved = memberRepository.save(new Member(socialLoginRequest.email(), encodedPassword, Role.REGULAR,socialLoginRequest.social()));
 
         return saved;
     }

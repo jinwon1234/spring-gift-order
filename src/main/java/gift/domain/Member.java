@@ -19,6 +19,9 @@ public class Member {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    private Social social;
+
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -27,17 +30,19 @@ public class Member {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WishProduct> wishProducts = new ArrayList<>();
   
-    public Member(String email, String password, Role role) {
+    public Member(String email, String password, Role role, Social social) {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.social = social;
     }
 
-    public Member(Long id, String email, String password, Role role) {
+    public Member(Long id, String email, String password, Role role, Social social) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.social = social;
     }
 
     protected Member() {
@@ -57,6 +62,10 @@ public class Member {
 
     public Role getRole() {
         return role;
+    }
+
+    public Social getSocial() {
+        return social;
     }
 
     public void changePassword(String newPassword) {

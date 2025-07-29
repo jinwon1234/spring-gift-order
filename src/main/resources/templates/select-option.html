@@ -25,6 +25,7 @@
                             $('#optionSelect').html(`<option disabled selected>옵션 없음</option>`);
                             $('#quantityInput').prop('disabled', true);
                             $('#addBtn').prop('disabled', true);
+                            $('#orderBtn').prop('disabled', true);
                         } else {
                             const optionHTML = options.map(opt =>
                                 `<option value="${opt.id}" data-id="${opt.id}" data-quantity="${opt.quantity}">
@@ -84,6 +85,41 @@
                 });
             });
 
+            $('#orderBtn').on('click', function () {
+                const selected = $('#optionSelect').find('option:selected');
+                const optionId = selected.data('id');
+                const quantity = parseInt($('#quantityInput').val());
+
+                if (!optionId || !quantity || quantity < 1) {
+                    alert("올바른 옵션과 수량을 선택하세요.");
+                    return;
+                }
+
+                const message = prompt("주문 메시지를 입력하세요:", "");
+
+                if (message === null) return;
+
+                $.ajax({
+                    url: '/api/orders/direct',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        optionId: optionId,
+                        quantity: quantity,
+                        message: message
+                    }),
+                    success: function () {
+                        alert("주문이 완료되었습니다.");
+                        window.location.href = "/products";
+                    },
+                    error: function (jqXHR) {
+                        let msg = "주문 실패";
+                        if (jqXHR.responseJSON?.message) msg = jqXHR.responseJSON.message;
+                        alert(msg);
+                    }
+                });
+            });
+
             $('#backBtn').on('click', function () {
                 window.history.back();
             });
@@ -119,7 +155,10 @@
 
         <div class="d-flex justify-content-between">
             <button id="backBtn" class="btn btn-secondary">이전으로</button>
-            <button id="addBtn" class="btn btn-success">위시리스트 추가</button>
+            <div>
+                <button id="orderBtn" class="btn btn-primary me-2">바로 주문</button>
+                <button id="addBtn" class="btn btn-success">위시리스트 추가</button>
+            </div>
         </div>
     </div>
 </div>

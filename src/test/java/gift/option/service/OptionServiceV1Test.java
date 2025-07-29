@@ -1,9 +1,6 @@
 package gift.option.service;
 
-import gift.domain.Member;
-import gift.domain.Option;
-import gift.domain.Product;
-import gift.domain.Role;
+import gift.domain.*;
 import gift.global.exception.BadRequestEntityException;
 import gift.global.exception.NotFoundEntityException;
 import gift.member.dto.AuthMember;
@@ -44,7 +41,7 @@ class OptionServiceV1Test {
     public void deleteSuccess() {
 
         // given
-        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product(1L, "스윙칩", 3000, "image", member);
         Option option = new Option(1L, "옵션1", 100, product);
 
@@ -84,7 +81,7 @@ class OptionServiceV1Test {
     public void deleteFail2() {
 
         // given
-        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product(1L, "스윙칩", 3000, "image", member);
         Option option = new Option(1L, "옵션1", 100, product);
 
@@ -110,7 +107,7 @@ class OptionServiceV1Test {
     @DisplayName("옵션 수량 수정 성공")
     public void changeQuantitySuccess() {
         // given
-        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product(1L, "스윙칩", 3000, "image", member);
         Option option = new Option(1L, "옵션1", 100, product);
 
@@ -133,7 +130,7 @@ class OptionServiceV1Test {
     @DisplayName("옵션 수량 수정 실패 - 권한 없음")
     public void changeQuantityFail() {
         // given
-        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product(1L, "스윙칩", 3000, "image", member);
         Option option = new Option(1L, "옵션1", 100, product);
 
@@ -161,7 +158,7 @@ class OptionServiceV1Test {
     @DisplayName("상품 아이디로 조회")
     void findOptionByProductId() {
         // given
-        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product(1L, "스윙칩", 3000, "image", member);
         Option option = new Option(1L, "옵션1", 100, product);
 
@@ -181,7 +178,7 @@ class OptionServiceV1Test {
     @DisplayName("옵션 추가 실패 - 중복된 옵션 이름")
     void addOptionFail() {
         // given
-        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        Member member = new Member(1L , "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
         Product product = new Product(1L, "스윙칩", 3000, "image", member);
 
         given(optionRepository.countByProductIdAndOptionNames(any(), any()))

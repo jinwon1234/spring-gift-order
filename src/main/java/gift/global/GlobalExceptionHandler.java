@@ -59,12 +59,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(KakaoApiException.class)
-    public ResponseEntity<Map<String,Object>> handleKakaoApiException(KakaoApiException ex) {
+    @ExceptionHandler(KakaoKAuthException.class)
+    public ResponseEntity<Map<String,Object>> handleKakaoTokenApiException(KakaoKAuthException ex) {
 
         return ResponseEntity.status(ex.getStatus()).body(
-                Map.of("message", ex.getMessage(), "details", ex.getDetails()));
+                Map.of("message", ex.getMessage(), "details", ex.getkAuthExceptionResponse()));
+    }
 
+    @ExceptionHandler(KakaoKApiException.class)
+    public ResponseEntity<Map<String,Object>> handleKakaoUserApiException(KakaoKApiException ex) {
+
+        return ResponseEntity.status(ex.getStatus()).body(
+                Map.of("message", ex.getMessage(), "details", ex.getkApiExceptionResponse()));
     }
 
     @ExceptionHandler(ResourceAccessException.class)

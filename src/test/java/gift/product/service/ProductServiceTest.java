@@ -3,6 +3,7 @@ package gift.product.service;
 import gift.domain.Member;
 import gift.domain.Product;
 import gift.domain.Role;
+import gift.domain.Social;
 import gift.global.exception.BadRequestEntityException;
 import gift.global.exception.NotFoundEntityException;
 import gift.member.dto.AuthMember;
@@ -107,7 +108,7 @@ class ProductServiceTest {
         Member member = addMemberCase();
         Product product = addProductCase(member);
 
-        Member adminMember = memberRepository.save(new Member("admin@naver.com", "Qwer1234", Role.ADMIN));
+        Member adminMember = memberRepository.save(new Member("admin@naver.com", "Qwer1234", Role.ADMIN, Social.NONE));
 
         productService.deleteProduct(product.getId(), new AuthMember(adminMember.getEmail(), adminMember.getRole()));
 
@@ -128,7 +129,7 @@ class ProductServiceTest {
         Member member = addMemberCase();
         Product product = addProductCase(member);
 
-        Member badMember = memberRepository.save(new Member("bad@naver.com", "Qwer1234", Role.REGULAR));
+        Member badMember = memberRepository.save(new Member("bad@naver.com", "Qwer1234", Role.REGULAR, Social.NONE));
 
         assertThatThrownBy(()->productService
                 .deleteProduct(product.getId(), new AuthMember(badMember.getEmail(), badMember.getRole()))
@@ -161,7 +162,7 @@ class ProductServiceTest {
         Member member = addMemberCase();
         Product product = addProductCase(member);
 
-        Member badMember = memberRepository.save(new Member("bad@naver.com", "Qwer1234", Role.REGULAR));
+        Member badMember = memberRepository.save(new Member("bad@naver.com", "Qwer1234", Role.REGULAR, Social.NONE));
 
         ProductUpdateRequest updateDto = new ProductUpdateRequest("스윙칩", 3500, "data:image/~base64,");
 
@@ -183,7 +184,7 @@ class ProductServiceTest {
     }
 
     private Member addMemberCase() {
-        return memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR));
+        return memberRepository.save(new Member("ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE));
     }
 
     private Product addProductCase(Member member) {

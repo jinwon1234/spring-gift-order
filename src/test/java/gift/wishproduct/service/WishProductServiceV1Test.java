@@ -220,7 +220,7 @@ class WishProductServiceV1Test {
                 .willReturn(Optional.of(wishProduct));
 
         given(memberService.findByEmail(member.getEmail()))
-                .willReturn(new Member(2L, "temp@naver.com", "Qwer1234!!", Role.REGULAR));
+                .willReturn(new Member(2L, "temp@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE));
 
         // when
         assertThatThrownBy(()->wishProductService.deleteById(wishProduct.getId(), member.getEmail()))
@@ -275,7 +275,7 @@ class WishProductServiceV1Test {
                 .willReturn(Optional.of(wishProduct));
 
         given(memberService.findByEmail(anyString()))
-                .willReturn(new Member(2L, "temp@naver.com", "Qwer1234!!", Role.REGULAR));
+                .willReturn(new Member(2L, "temp@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE));
 
         // when
 
@@ -294,7 +294,7 @@ class WishProductServiceV1Test {
 
 
     private Member addMemberCase() {
-        return new Member(1L, "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR);
+        return new Member(1L, "ljw2109@naver.com", "Qwer1234!!", Role.REGULAR, Social.NONE);
     }
 
     private Product addProductCase(Member member) {

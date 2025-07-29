@@ -2,6 +2,7 @@ package gift.member.controller;
 
 import gift.domain.Member;
 import gift.domain.Role;
+import gift.domain.Social;
 import gift.jwt.JWTUtil;
 import gift.member.dto.*;
 import gift.member.repository.MemberRepository;
@@ -372,7 +373,7 @@ class MemberControllerTest {
 
     private Member createMember(Role role) {
         String password = passwordEncoder.encode("Qwer1234!!");
-        return new Member("ljw2109@naver.com", password, role);
+        return new Member("ljw2109@naver.com", password, role, Social.NONE);
     }
 
     private MemberCreateRequest memberCreateRequest() {

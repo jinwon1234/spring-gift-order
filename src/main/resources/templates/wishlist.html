@@ -53,6 +53,7 @@
                                         <th>총 가격</th>
                                         <th>수정</th>
                                         <th>제거</th>
+                                        <th>주문</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -68,6 +69,7 @@
                                     <td>${(product.price * product.quantity).toLocaleString()}원</td>
                                     <td><button class="btn btn-warning btn-sm updateBtn" data-id="${product.id}" data-current="${product.quantity}">수량 수정</button></td>
                                     <td><button class="btn btn-danger btn-sm deleteBtn" data-id="${product.id}">제거</button></td>
+                                    <td><button class="btn btn-success btn-sm orderBtn" data-id="${product.id}" data-quantity="${product.quantity}">주문</button></td>
                                 </tr>
                             `;
                         }
@@ -156,6 +158,37 @@
                         error: (jqXHR) => {
                             let msg = "위시 상품 삭제 실패";
                             if (jqXHR.responseJSON?.message) msg = jqXHR.responseJSON.message;
+                            alert(msg);
+                        }
+                    });
+                }
+            });
+
+            $('#result').on('click', '.orderBtn', function () {
+                const wishProductId = $(this).data('id');
+                const quantity = $(this).data('quantity');
+
+                const message = prompt("주문 메시지를 입력하세요:", "");
+
+                if (message !== null) {
+                    $.ajax({
+                        url: '/api/orders/cart',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            wishProductId: wishProductId,
+                            quantity: quantity,
+                            message: message
+                        }),
+                        success: function () {
+                            alert('주문이 완료되었습니다.');
+                            fetchWishProducts(currentPage);
+                        },
+                        error: function (jqXHR) {
+                            let msg = '주문에 실패했습니다.';
+                            if (jqXHR.responseJSON?.message) {
+                                msg = jqXHR.responseJSON.message;
+                            }
                             alert(msg);
                         }
                     });
