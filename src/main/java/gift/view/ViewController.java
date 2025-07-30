@@ -17,6 +17,11 @@ public class ViewController {
         this.kakaoProperties = kakaoProperties;
     }
 
+    @GetMapping()
+    public String home() {
+        return "home";
+    }
+
     @GetMapping("/login")
     public String login(Model model) {
         model.addAttribute("kakaoRestApiKey", kakaoProperties.getKakaoRestApiKey());
