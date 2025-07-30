@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(
+        name = "product_option",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "UniqueOption",
