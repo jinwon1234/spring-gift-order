@@ -7,6 +7,7 @@ import gift.jwt.filter.*;
 import gift.member.argumentresolver.MyAuthenticalResolver;
 import gift.member.service.MemberService;
 import jakarta.servlet.Filter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final JWTValidator jwtValidator;
     private final JWTUtil jwtUtil;
     private final ObjectMapper objectMapper;
+    @Value("${spring.front.domain}")
+    private String frontDomain;
 
 
     public SecurityConfig(MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper) {
@@ -75,7 +78,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public FilterRegistrationBean CorsFilter() {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
-        filterRegistrationBean.setFilter(new CorsFilter());
+        filterRegistrationBean.setFilter(new CorsFilter(frontDomain));
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setOrder(1);
         return filterRegistrationBean;
