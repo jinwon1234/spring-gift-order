@@ -72,7 +72,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public FilterRegistrationBean customLogoutFilter() {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
-        filterRegistrationBean.setFilter(new CustomLogoutFilter(objectMapper));
+        filterRegistrationBean.setFilter(new CustomLogoutFilter(objectMapper, cookieProperties));
         filterRegistrationBean.addUrlPatterns("/api/members/logout");
         filterRegistrationBean.setOrder(5);
         return filterRegistrationBean;

@@ -1,10 +1,11 @@
 package gift.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gift.util.CookieProperties;
 import jakarta.servlet.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,9 +13,11 @@ import java.util.Map;
 public class CustomLogoutFilter implements Filter {
 
     private final ObjectMapper objectMapper;
+    private final CookieProperties cookieProperties;
 
-    public CustomLogoutFilter(ObjectMapper objectMapper) {
+    public CustomLogoutFilter(ObjectMapper objectMapper, CookieProperties cookieProperties) {
         this.objectMapper = objectMapper;
+        this.cookieProperties = cookieProperties;
     }
 
     @Override
@@ -29,14 +32,22 @@ public class CustomLogoutFilter implements Filter {
             return;
         }
 
-        Cookie cookie = new Cookie("Authorization", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
 
-        response.addCookie(cookie);
+        response.setHeader("Set-Cookie", createCookie("Authorization", null));
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(Map.of("message", "로그아웃 완료")));
+    }
+
+    private String createCookie(String key, String value) {
+        return ResponseCookie.from(key,value)
+                .maxAge(0)
+                .path("/")
+                .httpOnly(true)
+                .domain(cookieProperties.domain())
+                .sameSite(cookieProperties.sameSite())
+                .secure(cookieProperties.secure())
+                .build()
+                .toString();
     }
 }
