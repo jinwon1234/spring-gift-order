@@ -13,6 +13,7 @@ import gift.oauth2.dto.KakaoUserInfoResponse;
 import gift.oauth2.properties.KakaoProperties;
 import gift.oauth2.repository.KakaoTokenRepository;
 import gift.order.dto.KakaoOrderMessageTemplate;
+import gift.util.CookieProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,9 @@ class KakaoServiceTest {
 
     @MockitoBean
     private KakaoProperties kakaoProperties;
+
+    @MockitoBean
+    private CookieProperties cookieProperties;
 
     @BeforeEach
     void setUp() {
