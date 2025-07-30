@@ -3,10 +3,7 @@ package gift.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.jwt.JWTUtil;
 import gift.jwt.JWTValidator;
-import gift.jwt.filter.ApiFilter;
-import gift.jwt.filter.CustomLoginFilter;
-import gift.jwt.filter.CustomLogoutFilter;
-import gift.jwt.filter.ViewFilter;
+import gift.jwt.filter.*;
 import gift.member.argumentresolver.MyAuthenticalResolver;
 import gift.member.service.MemberService;
 import jakarta.servlet.Filter;
@@ -42,7 +39,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         filterFilterRegistrationBean.setFilter(new CustomLoginFilter(memberService, jwtUtil, objectMapper));
 
         filterFilterRegistrationBean.addUrlPatterns("/api/members/login");
-        filterFilterRegistrationBean.setOrder(3);
+        filterFilterRegistrationBean.setOrder(4);
         return filterFilterRegistrationBean;
     }
 
@@ -52,7 +49,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         filterRegistrationBean.setFilter(new ApiFilter(objectMapper, jwtValidator));
 
         filterRegistrationBean.addUrlPatterns("/api/*");
-        filterRegistrationBean.setOrder(2);
+        filterRegistrationBean.setOrder(3);
         return filterRegistrationBean;
     }
 
@@ -61,7 +58,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(new ViewFilter(jwtValidator));
         filterRegistrationBean.addUrlPatterns("/*");
-        filterRegistrationBean.setOrder(1);
+        filterRegistrationBean.setOrder(2);
 
         return filterRegistrationBean;
     }
@@ -71,7 +68,16 @@ public class SecurityConfig implements WebMvcConfigurer {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(new CustomLogoutFilter(objectMapper));
         filterRegistrationBean.addUrlPatterns("/api/members/logout");
-        filterRegistrationBean.setOrder(4);
+        filterRegistrationBean.setOrder(5);
+        return filterRegistrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean CorsFilter() {
+        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
+        filterRegistrationBean.setFilter(new CorsFilter());
+        filterRegistrationBean.addUrlPatterns("/*");
+        filterRegistrationBean.setOrder(1);
         return filterRegistrationBean;
     }
 
