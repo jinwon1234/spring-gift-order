@@ -247,7 +247,6 @@ class KakaoServiceTest {
         }
     """;
 
-
         String errorResponse2 = """
                 {
                     "error" : "KOE001",

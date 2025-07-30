@@ -69,7 +69,7 @@ public class OrderServiceV1 implements OrderService {
         return new OrderResponse(save.getId(), save.getOption().getId(),
                 save.getQuantity(), save.getCreatedDate(), save.getMessage());
     }
-
+  
     private void sendKakaoMessage(Member findMember, Product product, Option option, int orderCreateRequest, String orderCreateRequest1) {
 
         KakaoToken token = kakaoService.findTokenByMemberId(findMember.getId());
