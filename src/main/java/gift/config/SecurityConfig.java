@@ -6,6 +6,7 @@ import gift.jwt.JWTValidator;
 import gift.jwt.filter.*;
 import gift.member.argumentresolver.MyAuthenticalResolver;
 import gift.member.service.MemberService;
+import gift.util.CookieProperties;
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -27,19 +28,21 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final ObjectMapper objectMapper;
     @Value("${spring.front.domain}")
     private String frontDomain;
+    private final CookieProperties cookieProperties;
 
 
-    public SecurityConfig(MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper) {
+    public SecurityConfig(MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper, CookieProperties cookieProperties) {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.objectMapper = objectMapper;
+        this.cookieProperties = cookieProperties;
         this.jwtValidator = new JWTValidator(jwtUtil, memberService);
     }
 
     @Bean
     public FilterRegistrationBean customLoginFilter() {
         FilterRegistrationBean<Filter> filterFilterRegistrationBean = new FilterRegistrationBean<>();
-        filterFilterRegistrationBean.setFilter(new CustomLoginFilter(memberService, jwtUtil, objectMapper));
+        filterFilterRegistrationBean.setFilter(new CustomLoginFilter(memberService, jwtUtil, objectMapper, cookieProperties));
 
         filterFilterRegistrationBean.addUrlPatterns("/api/members/login");
         filterFilterRegistrationBean.setOrder(4);

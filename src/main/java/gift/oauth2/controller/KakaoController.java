@@ -23,9 +23,9 @@ public class KakaoController {
                                    @RequestParam(required = false, defaultValue = "/") String state,
                                    HttpServletResponse response) {
 
-        Cookie accessToken = loginService.socialLogin(code);
+        String accessToken = loginService.socialLogin(code);
 
-        response.addCookie(accessToken);
+        response.addHeader("Set-Cookie", accessToken);
         return new RedirectView(state);
     }
 }

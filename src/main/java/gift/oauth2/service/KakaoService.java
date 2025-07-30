@@ -15,9 +15,11 @@ import gift.oauth2.errorhandler.KakaoKApiResponseHandler;
 import gift.oauth2.properties.KakaoProperties;
 import gift.oauth2.repository.KakaoTokenRepository;
 import gift.order.dto.KakaoOrderMessageTemplate;
+import gift.util.CookieProperties;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
@@ -39,18 +41,20 @@ public class KakaoService {
     private final KakaoProperties kakaoProperties;
     private final KakaoTokenRepository kakaoTokenRepository;
     private final ObjectMapper objectMapper;
+    private final CookieProperties cookieProperties;
 
-    public KakaoService(RestClient.Builder builder, MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper, KakaoProperties kakaoProperties, KakaoTokenRepository kakaoTokenRepository) {
+    public KakaoService(RestClient.Builder builder, MemberService memberService, JWTUtil jwtUtil, ObjectMapper objectMapper, KakaoProperties kakaoProperties, KakaoTokenRepository kakaoTokenRepository, CookieProperties cookieProperties) {
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.restClient = builder.build();
         this.kakaoProperties = kakaoProperties;
         this.kakaoTokenRepository = kakaoTokenRepository;
         this.objectMapper = objectMapper;
+        this.cookieProperties = cookieProperties;
     }
 
     @Transactional
-    public Cookie socialLogin(String code) {
+    public String socialLogin(String code) {
         KakaoTokenResponse token = getToken(code)
                 .orElseThrow(()-> new IllegalStateException("API 응답이 비어있습니다. [카카오]."));
         KakaoUserInfoResponse userInfo = getUserInfo(token)
@@ -174,13 +178,15 @@ public class KakaoService {
         return jwt;
     }
 
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 60);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
+    private String createCookie(String key, String value) {
+        return ResponseCookie.from(key,value)
+                .maxAge(60*60)
+                .path("/")
+                .httpOnly(true)
+                .domain(cookieProperties.domain())
+                .sameSite(cookieProperties.sameSite())
+                .secure(cookieProperties.secure())
+                .build()
+                .toString();
     }
 }
